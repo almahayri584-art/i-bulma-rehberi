@@ -792,6 +792,7 @@ function rendcv(p){
     ${p.eng||p.lang2?`<div class="cvsec"><div class="cvsect">DİLLER</div><div style="font-size:12px;color:#444">${p.eng?'İngilizce: '+p.eng:''}${p.lang2?' • '+p.lang2:''}</div></div>`:''}
     ${p.certs?`<div class="cvsec"><div class="cvsect">SERTİFİKALAR</div><div style="font-size:12px;color:#444">${p.certs}</div></div>`:''}
     ${(p.exSecs||[]).map(s=>`<div class="cvsec"><div class="cvsect">${s.header.toUpperCase()}</div><div class="cvi"><div class="cvir"><span class="cvit">${s.sub||''}</span><span class="cvid">${s.date||''}</span></div><div class="cvidc">${s.content||''}</div></div></div>`).join('')}`;
+}
 
 function showats(r){
   const{score,iss,gd}=r;
@@ -1081,17 +1082,7 @@ function addExSec(){
   const div=document.createElement('div');
   div.id='exsec-'+id;
   div.style.cssText='background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:11px';
-  div.innerHTML=`
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-      <span style="font-size:12px;font-weight:600;color:var(--ac)">Bölüm ${id}</span>
-      <button onclick="document.getElementById('exsec-${id}').remove()" style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:16px">✕</button>
-    </div>
-    <div class="fg2">
-      <div class="fg full"><label>Ana Başlık</label><input id="exh-${id}" type="text" placeholder="Örn: Projeler, Ödüller, Gönüllülük..."></div>
-      <div class="fg"><label>Alt Başlık</label><input id="exs-${id}" type="text" placeholder="Örn: Proje Adı, Ödül Adı..."></div>
-      <div class="fg"><label>Tarih / Yer</label><input id="exd-${id}" type="text" placeholder="Örn: 2024, İstanbul..."></div>
-      <div class="fg full"><label>Açıklama</label><textarea id="exc-${id}" placeholder="Detaylar..." style="min-height:70px"></textarea></div>
-    </div>`;
+  div.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><span style="font-size:12px;font-weight:600;color:var(--ac)">Bölüm '+id+'</span><button onclick="document.getElementById(\'exsec-'+id+'\').remove()" style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:16px">✕</button></div><div class="fg2"><div class="fg full"><label>Ana Başlık</label><input id="exh-'+id+'" type="text" placeholder="Örn: Projeler, Ödüller, Gönüllülük..."></div><div class="fg"><label>Alt Başlık</label><input id="exs-'+id+'" type="text" placeholder="Örn: Proje Adı, Ödül Adı..."></div><div class="fg"><label>Tarih / Yer</label><input id="exd-'+id+'" type="text" placeholder="Örn: 2024, İstanbul..."></div><div class="fg full"><label>Açıklama</label><textarea id="exc-'+id+'" placeholder="Detaylar..." style="min-height:70px"></textarea></div></div>';
   document.getElementById('exsecs').appendChild(div);
 }
 function getExSecs(){
