@@ -210,6 +210,7 @@ select option{background:var(--s2)}
 
 @media(max-width:600px){.hdr{padding:13px 14px}.hsteps{display:none}.wrap{padding:26px 13px}.fg2{grid-template-columns:1fr}.ig{grid-template-columns:1fr}.cvbox{padding:22px}}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 
@@ -348,6 +349,12 @@ select option{background:var(--s2)}
         </div>
       </div>
     </div>
+    <div class="fsec">
+      <span class="ftitle">➕ Ekstra Bölüm (İsteğe Bağlı)</span>
+      <div style="font-size:13px;color:var(--tx2);margin-bottom:13px">Projeler, gönüllülük, yayınlar, ödüller gibi özel bir bölüm ekleyin.</div>
+      <div id="exsecs"></div>
+      <button class="btn bs sm" onclick="addExSec()">+ Bölüm Ekle</button>
+    </div>
     <div class="nav">
       <button class="btn bg" onclick="go('landing')">← Geri</button>
       <button class="btn bp" onclick="makecv()">CV Oluştur →</button>
@@ -426,7 +433,7 @@ select option{background:var(--s2)}
       <div class="nav">
         <button class="btn bg" onclick="go('profile')">← Düzenle</button>
         <div style="display:flex;gap:9px">
-          <button class="btn bs" onclick="toast('PDF indirme API key bağlandıktan sonra aktif olacak','warn')">⬇️ PDF İndir</button>
+          <button class="btn bs" onclick="downloadPDF()">⬇️ PDF İndir</button>
           <button class="btn bp" onclick="go('categories')">Devam Et →</button>
         </div>
       </div>
@@ -715,7 +722,8 @@ function col(){
     lang2:document.getElementById('fl2').value.trim(),
     certs:document.getElementById('fce').value.trim(),
     target:document.getElementById('fta').value.trim(),
-    summary:document.getElementById('fsu').value.trim()
+    summary:document.getElementById('fsu').value.trim(),
+    exSecs:getExSecs()
   };
 }
 
@@ -782,8 +790,8 @@ function rendcv(p){
     <div class="cvsec"><div class="cvsect">EĞİTİM</div><div class="cvi"><div class="cvir"><span class="cvit">${p.school||'Okul / Üniversite'}</span><span class="cvid">${p.gradyear||''}</span></div><div class="cvis">${p.degree||''} ${p.major?'– '+p.major:''}</div></div></div>
     ${skillsHtml?`<div class="cvsec"><div class="cvsect">YETENEKler</div><div class="cvskls">${skillsHtml}</div></div>`:''}
     ${p.eng||p.lang2?`<div class="cvsec"><div class="cvsect">DİLLER</div><div style="font-size:12px;color:#444">${p.eng?'İngilizce: '+p.eng:''}${p.lang2?' • '+p.lang2:''}</div></div>`:''}
-    ${p.certs?`<div class="cvsec"><div class="cvsect">SERTİFİKALAR</div><div style="font-size:12px;color:#444">${p.certs}</div></div>`:''}`;
-}
+    ${p.certs?`<div class="cvsec"><div class="cvsect">SERTİFİKALAR</div><div style="font-size:12px;color:#444">${p.certs}</div></div>`:''}
+    ${(p.exSecs||[]).map(s=>`<div class="cvsec"><div class="cvsect">${s.header.toUpperCase()}</div><div class="cvi"><div class="cvir"><span class="cvit">${s.sub||''}</span><span class="cvid">${s.date||''}</span></div><div class="cvidc">${s.content||''}</div></div></div>`).join('')}`;
 
 function showats(r){
   const{score,iss,gd}=r;
@@ -1063,6 +1071,48 @@ function setCVLayout(v){
 function setCVNameSize(s){
   const el=document.querySelector('#cvprev .cvname');
   if(el)el.style.fontSize=s;
+}
+
+// EKSTRA BÖLÜMLER
+let exSecCount=0;
+function addExSec(){
+  exSecCount++;
+  const id=exSecCount;
+  const div=document.createElement('div');
+  div.id='exsec-'+id;
+  div.style.cssText='background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:11px';
+  div.innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <span style="font-size:12px;font-weight:600;color:var(--ac)">Bölüm ${id}</span>
+      <button onclick="document.getElementById('exsec-${id}').remove()" style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:16px">✕</button>
+    </div>
+    <div class="fg2">
+      <div class="fg full"><label>Ana Başlık</label><input id="exh-${id}" type="text" placeholder="Örn: Projeler, Ödüller, Gönüllülük..."></div>
+      <div class="fg"><label>Alt Başlık</label><input id="exs-${id}" type="text" placeholder="Örn: Proje Adı, Ödül Adı..."></div>
+      <div class="fg"><label>Tarih / Yer</label><input id="exd-${id}" type="text" placeholder="Örn: 2024, İstanbul..."></div>
+      <div class="fg full"><label>Açıklama</label><textarea id="exc-${id}" placeholder="Detaylar..." style="min-height:70px"></textarea></div>
+    </div>`;
+  document.getElementById('exsecs').appendChild(div);
+}
+function getExSecs(){
+  const secs=[];
+  for(let i=1;i<=exSecCount;i++){
+    const el=document.getElementById('exsec-'+i);
+    if(!el)continue;
+    const h=document.getElementById('exh-'+i)?.value.trim();
+    if(!h)continue;
+    secs.push({header:h,sub:document.getElementById('exs-'+i)?.value.trim()||'',date:document.getElementById('exd-'+i)?.value.trim()||'',content:document.getElementById('exc-'+i)?.value.trim()||''});
+  }
+  return secs;
+}
+
+// PDF İNDİR
+function downloadPDF(){
+  const el=document.getElementById('cvprev');
+  if(!el){toast('Önce CV oluşturun','error');return;}
+  toast('PDF hazırlanıyor...','info');
+  const opt={margin:0,filename:(st.profile?.name||'cv')+'.pdf',image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}};
+  html2pdf().set(opt).from(el).save().then(()=>toast('PDF indirildi!','success')).catch(()=>toast('PDF hatası','error'));
 }
 
 const dl=ms=>new Promise(r=>setTimeout(r,ms));
