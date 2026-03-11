@@ -827,14 +827,29 @@ function detsec(txt){
 }
 
 // CATEGORIES
-function analcat(){
+async function analcat(){
   const v=document.getElementById('catin').value.trim();
   if(!v){toast('Lütfen hedef pozisyonunuzu yazın','error');return;}
+  const btn=event.target;btn.disabled=true;btn.textContent='Analiz ediliyor...';
+  st.catInput=v;
   st.sector=detsec(v);
-  const d=sec[st.sector];
-  document.getElementById('cattgs').innerHTML=d.cats.map(c=>`<button class="tb" onclick="togc(this,'${c}')">${c}</button>`).join('');
-  document.getElementById('catsg').style.display='block';
-  toast(d.e+' Sektör tespit edildi: '+st.sector,'success');
+  try {
+    const sys=`Sen bir kariyer uzmanısın. Kişinin hedef pozisyonu verilecek. Ona uygun 6-8 iş kategorisi öner. JSON döndür (başka bir şey yazma):
+{"cats":["Kategori1","Kategori2","Kategori3","Kategori4","Kategori5","Kategori6"]}
+Türkçe, sektöre özgü kategoriler yaz.`;
+    const result=await ai(sys,`Hedef: ${v}`);
+    const clean=result.replace(/```json|```/g,'').trim();
+    const d=JSON.parse(clean);
+    document.getElementById('cattgs').innerHTML=d.cats.map(c=>`<button class="tb" onclick="togc(this,'${c}')">${c}</button>`).join('');
+    document.getElementById('catsg').style.display='block';
+    toast('✨ Kategoriler oluşturuldu','success');
+  } catch(e) {
+    // fallback to static
+    const d=sec[st.sector];
+    document.getElementById('cattgs').innerHTML=d.cats.map(c=>`<button class="tb" onclick="togc(this,'${c}')">${c}</button>`).join('');
+    document.getElementById('catsg').style.display='block';
+  }
+  btn.disabled=false;btn.textContent='Analiz Et ✨';
 }
 function togc(b,c){b.classList.toggle('sel');if(b.classList.contains('sel'))st.cats.push(c);else st.cats=st.cats.filter(x=>x!==c);}
 
@@ -842,12 +857,35 @@ function togc(b,c){b.classList.toggle('sel');if(b.classList.contains('sel'))st.c
 async function loadjobs(){
   const jl=document.getElementById('jbld');const jls=document.getElementById('jbls');
   jl.classList.add('show');jls.style.display='none';
-  await dl(1400);
-  const cv=document.getElementById('catin');const ctxt=cv?cv.value:'';
-  const sector=st.sector||detsec(ctxt+' '+(st.profile.target||''));
-  const d=sec[sector]||sec.genel;
-  jls.innerHTML=d.jobs.map(j=>`<div class="jc" onclick="selj(this,'${j.co}','${j.t}',${j.m})"><div class="jlog">${j.e}</div><div class="ji"><div class="jt">${j.t}</div><div class="jco">${j.co} • ${j.lo}</div><div class="jtgs">${j.tgs.map(t=>`<span class="jtg">${t}</span>`).join('')}<span class="jtg m">%${j.m} uyum</span></div></div><div class="ms">${j.m}%<span>uyum</span></div></div>`).join('');
-  document.getElementById('aplpl').innerHTML=`<strong style="color:var(--tx);font-size:14px">${d.e} ${sector} sektörü için önerilen yerler:</strong><br><br>`+d.pls.map(([t,dc])=>`<strong style="color:var(--tx)">${t}</strong> — ${dc}<br>`).join('');
+  const p=st.profile;
+  const hedef=st.catInput||document.getElementById('catin')?.value||p.target||'';
+  try {
+    const sys=`Sen bir kariyer danışmanısın. Adayın profili verilecek. Ona uygun 4 gerçekçi iş ilanı üret. JSON döndür (başka bir şey yazma):
+{"jobs":[{"e":"emoji","t":"Pozisyon Adı","co":"Şirket Adı (Türkiye'den gerçek şirket)","lo":"Şehir","tgs":["etiket1","etiket2"],"m":85,"neden":"Bu ilanın adaya uygunluk sebebi 1 cümle"}],"yerler":"Bu alanda başvurulabilecek şirket ve platformlar hakkında 3-4 satır bilgi"}
+Uyum skoru (m) 60-95 arası olsun. Türkiye'den gerçek şirket isimleri kullan. Türkçe yaz.`;
+    const profil=`Ad: ${p.name||''}, Hedef: ${hedef}, Deneyim: ${p.pos1||''} @ ${p.co1||''}, Beceriler: ${p.skills||''}, Eğitim: ${p.major||''}, Sektör: ${p.sector||st.sector}`;
+    const result=await ai(sys,profil);
+    const clean=result.replace(/```json|```/g,'').trim();
+    const d=JSON.parse(clean);
+    jls.innerHTML=d.jobs.map(j=>`<div class="jc" onclick="selj(this,'${j.co.replace(/'/g,"\\'")}','${j.t.replace(/'/g,"\\'")}',${j.m})">
+      <div class="jlog">${j.e}</div>
+      <div class="ji">
+        <div class="jt">${j.t}</div>
+        <div class="jco">${j.co} • ${j.lo}</div>
+        <div class="jtgs">${j.tgs.map(t=>`<span class="jtg">${t}</span>`).join('')}<span class="jtg m">%${j.m} uyum</span></div>
+        <div style="font-size:12px;color:var(--tx3);margin-top:5px">💡 ${j.neden}</div>
+      </div>
+      <div class="ms">${j.m}%<span>uyum</span></div>
+    </div>`).join('');
+    document.getElementById('aplpl').innerHTML=`<div style="font-size:14px;color:var(--tx2);line-height:1.8">${d.yerler}</div>`;
+    toast('✨ Kişiye özel ilanlar oluşturuldu','success');
+  } catch(e) {
+    // fallback
+    const sector=st.sector||detsec(hedef);
+    const d=sec[sector]||sec.genel;
+    jls.innerHTML=d.jobs.map(j=>`<div class="jc" onclick="selj(this,'${j.co}','${j.t}',${j.m})"><div class="jlog">${j.e}</div><div class="ji"><div class="jt">${j.t}</div><div class="jco">${j.co} • ${j.lo}</div><div class="jtgs">${j.tgs.map(t=>`<span class="jtg">${t}</span>`).join('')}<span class="jtg m">%${j.m} uyum</span></div></div><div class="ms">${j.m}%<span>uyum</span></div></div>`).join('');
+    document.getElementById('aplpl').innerHTML=d.pls.map(([t,dc])=>`<strong style="color:var(--tx)">${t}</strong> — ${dc}<br>`).join('');
+  }
   jl.classList.remove('show');jls.style.display='block';
 }
 function selj(el,co,pos,m){
