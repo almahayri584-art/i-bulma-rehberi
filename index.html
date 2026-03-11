@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -279,6 +280,7 @@ select option{background:var(--s2)}
         <div class="fg"><label>Telefon</label><input id="fph" type="tel" placeholder="+90 5XX XXX XX XX"></div>
         <div class="fg"><label>Şehir</label><input id="fci" type="text" placeholder="İstanbul"></div>
         <div class="fg"><label>LinkedIn</label><input id="fli" type="text" placeholder="linkedin.com/in/..."></div>
+        <div class="fg"><label>Web Sitesi / Portfolio</label><input id="fweb" type="text" placeholder="https://siteadınız.com"></div>
         <div class="fg"><label>Askerlik Durumu</label>
           <select id="fmi"><option value="">Seçiniz</option><option value="yapildi">Yapıldı</option><option value="muaf">Muaf</option><option value="tecilli">Tecilli</option><option value="yapilmadi">Yapılmadı</option><option value="na">Uygulanmaz</option></select>
         </div>
@@ -295,7 +297,18 @@ select option{background:var(--s2)}
       <div class="fg2">
         <div class="fg"><label>Okul / Üniversite</label><input id="fsc" type="text" placeholder="Üniversite Adı"></div>
         <div class="fg"><label>Bölüm</label><input id="fma" type="text" placeholder="Bölüm Adı"></div>
-        <div class="fg"><label>Mezuniyet Yılı</label><input id="fgy" type="number" placeholder="2020" min="1980" max="2030"></div>
+        <div class="fg"><label>Mezuniyet Yılı</label>
+          <select id="fgy">
+            <option value="">Seçiniz</option>
+            <option value="Devam Ediyor">Devam Ediyor</option>
+            <option value="2026">2026</option><option value="2025">2025</option><option value="2024">2024</option>
+            <option value="2023">2023</option><option value="2022">2022</option><option value="2021">2021</option>
+            <option value="2020">2020</option><option value="2019">2019</option><option value="2018">2018</option>
+            <option value="2017">2017</option><option value="2016">2016</option><option value="2015">2015</option>
+            <option value="2014">2014</option><option value="2013">2013</option><option value="2012">2012</option>
+            <option value="2010">2010</option><option value="2008">2008</option><option value="2005">2005</option>
+          </select>
+        </div>
         <div class="fg"><label>Derece</label>
           <select id="fdg"><option>Lisans</option><option>Ön Lisans</option><option>Yüksek Lisans</option><option>Lise</option><option>Doktora</option></select>
         </div>
@@ -367,6 +380,49 @@ select option{background:var(--s2)}
         </div>
       </div>
       <div id="cvprev" class="cvbox"></div>
+
+      <!-- CV ÖZELLEŞTİRME -->
+      <div class="card" style="margin-top:18px;margin-bottom:13px">
+        <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:14px">🎨 CV Özelleştir</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:13px">
+          <div class="fg">
+            <label>Renk Teması</label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+              <button onclick="setCVColor('#6c63ff')" style="width:28px;height:28px;border-radius:50%;background:#6c63ff;border:3px solid #fff;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.3)" title="Mor"></button>
+              <button onclick="setCVColor('#0ea5e9')" style="width:28px;height:28px;border-radius:50%;background:#0ea5e9;border:2px solid transparent;cursor:pointer" title="Mavi"></button>
+              <button onclick="setCVColor('#10b981')" style="width:28px;height:28px;border-radius:50%;background:#10b981;border:2px solid transparent;cursor:pointer" title="Yeşil"></button>
+              <button onclick="setCVColor('#f59e0b')" style="width:28px;height:28px;border-radius:50%;background:#f59e0b;border:2px solid transparent;cursor:pointer" title="Sarı"></button>
+              <button onclick="setCVColor('#ef4444')" style="width:28px;height:28px;border-radius:50%;background:#ef4444;border:2px solid transparent;cursor:pointer" title="Kırmızı"></button>
+              <button onclick="setCVColor('#1a1a2e')" style="width:28px;height:28px;border-radius:50%;background:#1a1a2e;border:2px solid transparent;cursor:pointer" title="Siyah"></button>
+            </div>
+          </div>
+          <div class="fg">
+            <label>Font</label>
+            <select onchange="setCVFont(this.value)" style="margin-top:4px">
+              <option value="'DM Sans',sans-serif">DM Sans (Varsayılan)</option>
+              <option value="Georgia,serif">Georgia (Klasik)</option>
+              <option value="'Courier New',monospace">Courier (Teknik)</option>
+              <option value="Arial,sans-serif">Arial (Sade)</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>Düzen</label>
+            <select onchange="setCVLayout(this.value)" style="margin-top:4px">
+              <option value="normal">Normal Kenar Boşluğu</option>
+              <option value="compact">Kompakt</option>
+              <option value="spacious">Geniş</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>Başlık Boyutu</label>
+            <select onchange="setCVNameSize(this.value)" style="margin-top:4px">
+              <option value="25px">Normal</option>
+              <option value="20px">Küçük</option>
+              <option value="30px">Büyük</option>
+            </select>
+          </div>
+        </div>
+      </div>
       <div class="nav">
         <button class="btn bg" onclick="go('profile')">← Düzenle</button>
         <div style="display:flex;gap:9px">
@@ -644,6 +700,7 @@ function col(){
     phone:document.getElementById('fph').value.trim(),
     city:document.getElementById('fci').value.trim(),
     linkedin:document.getElementById('fli').value.trim(),
+    website:document.getElementById('fweb')?.value.trim()||'',
     school:document.getElementById('fsc').value.trim(),
     major:document.getElementById('fma').value.trim(),
     gradyear:document.getElementById('fgy').value.trim(),
@@ -719,7 +776,7 @@ function rendcv(p){
   document.getElementById('cvprev').innerHTML=`
     <div class="cvname">${p.name}</div>
     <div class="cvtitle">${p.target||''}</div>
-    <div class="cvc">${p.email?`<span>✉ ${p.email}</span>`:''} ${p.phone?`<span>📱 ${p.phone}</span>`:''} ${p.city?`<span>📍 ${p.city}</span>`:''} ${p.linkedin?`<span>🔗 ${p.linkedin}</span>`:''}</div>
+    <div class="cvc">${p.email?`<span>✉ ${p.email}</span>`:''} ${p.phone?`<span>📱 ${p.phone}</span>`:''} ${p.city?`<span>📍 ${p.city}</span>`:''} ${p.linkedin?`<span>🔗 ${p.linkedin}</span>`:''} ${p.website?`<span>🌐 ${p.website}</span>`:''}</div>
     ${p.summary?`<div class="cvsec"><div class="cvsect">ÖZET</div><div style="font-size:13px;color:#444;line-height:1.6">${p.summary}</div></div>`:''}
     <div class="cvsec"><div class="cvsect">DENEYİM</div>${exp}</div>
     <div class="cvsec"><div class="cvsect">EĞİTİM</div><div class="cvi"><div class="cvir"><span class="cvit">${p.school||'Okul / Üniversite'}</span><span class="cvid">${p.gradyear||''}</span></div><div class="cvis">${p.degree||''} ${p.major?'– '+p.major:''}</div></div></div>
@@ -979,6 +1036,34 @@ function rendtr(){
   g.innerHTML=st.tracks.map(e=>`<div class="trc"><span class="trst ${scm[e.s]}">${stm[e.s]}</span><div class="trco">${e.co}</div><div class="trpos">${e.pos||'—'}</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:9px"><span style="font-size:11px;color:var(--tx3)">📅 ${e.date}</span><button onclick="deltr(${e.id})" style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:15px">✕</button></div></div>`).join('');
 }
 function deltr(id){st.tracks=st.tracks.filter(e=>e.id!==id);rendtr();}
+
+// CV ÖZELLEŞTİRME
+let cvColor='#6c63ff';
+function setCVColor(c){
+  cvColor=c;
+  const box=document.getElementById('cvprev');
+  if(!box)return;
+  box.querySelectorAll('.cvsect,.cvtitle,.cvc').forEach(el=>el.style.color=c);
+  box.querySelectorAll('.cvc').forEach(el=>el.style.borderBottomColor=c);
+  box.querySelectorAll('.cvsk').forEach(el=>{el.style.background=c+'22';el.style.color=c;});
+  document.querySelectorAll('[onclick^="setCVColor"]').forEach(b=>b.style.border='2px solid transparent');
+  event.target.style.border='3px solid #fff';
+  toast('Renk değiştirildi','success');
+}
+function setCVFont(f){
+  const box=document.getElementById('cvprev');
+  if(box)box.style.fontFamily=f;
+}
+function setCVLayout(v){
+  const box=document.getElementById('cvprev');
+  if(!box)return;
+  const pad={normal:'42px',compact:'24px',spacious:'56px'}[v]||'42px';
+  box.style.padding=pad;
+}
+function setCVNameSize(s){
+  const el=document.querySelector('#cvprev .cvname');
+  if(el)el.style.fontSize=s;
+}
 
 const dl=ms=>new Promise(r=>setTimeout(r,ms));
 
