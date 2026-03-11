@@ -1100,10 +1100,25 @@ function getExSecs(){
 // PDF İNDİR
 function downloadPDF(){
   const el=document.getElementById('cvprev');
-  if(!el){toast('Önce CV oluşturun','error');return;}
+  if(!el||!el.innerHTML.trim()){toast('Önce CV oluşturun','error');return;}
   toast('PDF hazırlanıyor...','info');
-  const opt={margin:0,filename:(st.profile?.name||'cv')+'.pdf',image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}};
-  html2pdf().set(opt).from(el).save().then(()=>toast('PDF indirildi!','success')).catch(()=>toast('PDF hatası','error'));
+  // Clone the CV element with inline styles for proper rendering
+  const clone=el.cloneNode(true);
+  clone.style.cssText='background:#fff;color:#1a1a2e;font-family:\'DM Sans\',sans-serif;padding:42px;max-width:650px;margin:0;box-shadow:none;border-radius:0;';
+  const wrapper=document.createElement('div');
+  wrapper.style.cssText='position:fixed;top:-9999px;left:-9999px;width:210mm;background:#fff;';
+  wrapper.appendChild(clone);
+  document.body.appendChild(wrapper);
+  const opt={
+    margin:[10,10,10,10],
+    filename:(st.profile?.name||'cv').replace(/\s+/g,'_')+'.pdf',
+    image:{type:'jpeg',quality:0.98},
+    html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false},
+    jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
+  };
+  html2pdf().set(opt).from(clone).save()
+    .then(()=>{document.body.removeChild(wrapper);toast('PDF indirildi! ✅','success');})
+    .catch(e=>{document.body.removeChild(wrapper);toast('PDF hatası: '+e.message,'error');console.error(e);});
 }
 
 const dl=ms=>new Promise(r=>setTimeout(r,ms));
