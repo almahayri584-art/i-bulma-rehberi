@@ -159,6 +159,18 @@
   .upload-zone:hover { border-color: #aaa; background: #f0ece6; }
   .upload-zone.has-file { border-style: solid; border-color: #bbb; }
 
+  /* section divider inside note-section */
+  .section-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 10px 0 8px;
+  }
+  .section-caption-label {
+    font-size: 11px; font-weight: 600; letter-spacing: .05em;
+    text-transform: uppercase; color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
   /* file chips */
   .file-chips { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
   .file-chip {
@@ -343,15 +355,27 @@
   .note-card .note-link { font-size: 14px; }
   .note-card .note-link a { color: #333; word-break: break-all; }
   .note-card .note-img { max-width: 100%; max-height: 220px; border-radius: 8px; display: block; margin-top: 8px; object-fit: cover; }
-  .note-card .note-del {
-    position: absolute; top: 12px; right: 14px;
-    background: none; border: none; cursor: pointer;
-    font-size: 14px; opacity: 0;
-    transition: opacity .15s;
-    color: var(--text-muted);
+  .note-card .note-caption {
+    font-size: 12px; color: var(--text-muted);
+    margin-top: 6px; font-style: italic; line-height: 1.5;
   }
-  .note-card:hover .note-del { opacity: 1; }
-  .note-card .note-del:hover { color: #c00; }
+
+  /* note card action buttons */
+  .note-card-actions {
+    position: absolute; top: 12px; right: 14px;
+    display: flex; gap: 4px;
+    opacity: 0; transition: opacity .15s;
+  }
+  .note-card:hover .note-card-actions { opacity: 1; }
+  .note-card-actions button {
+    background: none; border: none; cursor: pointer;
+    font-size: 13px; padding: 3px 5px;
+    border-radius: 6px; color: var(--text-muted);
+    line-height: 1; transition: background .12s, color .12s;
+  }
+  .note-card-actions button:hover { background: #f0ece6; }
+  .note-card-actions .note-edit-btn:hover { color: #555; }
+  .note-card-actions .note-del-btn:hover  { color: #c00; }
 
   /* sub cat chips */
   .subcat-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
@@ -401,6 +425,51 @@
   }
   .upload-area:hover { border-color: #aaa; }
   #img-preview { max-width: 100%; max-height: 160px; border-radius: 8px; display: none; margin-top: 10px; }
+
+  /* ─── EDIT NOTE MODAL ─────────────────── */
+  .edit-note-modal { width: 460px; }
+  .edit-note-modal textarea {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    resize: vertical;
+    min-height: 100px;
+    transition: border-color .15s;
+  }
+  .edit-note-modal textarea:focus { border-color: #aaa; }
+  .edit-note-modal input[type=text] {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    transition: border-color .15s;
+  }
+  .edit-note-modal input[type=text]:focus { border-color: #aaa; }
+  .edit-preview-img {
+    max-width: 100%; max-height: 160px;
+    border-radius: 8px; display: block;
+    margin-bottom: 10px; object-fit: cover;
+  }
+  .edit-file-info {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    background: var(--bg);
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
 
   @media(max-width: 600px){
     header, .container { padding-left: 20px; padding-right: 20px; }
@@ -500,6 +569,10 @@
         <input type="file" id="img-file" accept="image/*" multiple style="display:none" onchange="addImages(event)">
       </div>
       <div class="img-chips" id="img-chips"></div>
+      <!-- İsteğe bağlı metin -->
+      <hr class="section-divider" id="img-caption-divider" style="display:none">
+      <div class="section-caption-label" id="img-caption-label" style="display:none">💬 Açıklama (isteğe bağlı)</div>
+      <textarea id="img-caption-input" placeholder="Fotoğraflar için bir açıklama ekle…" style="display:none; border:none; background:transparent; padding:0; font-size:14px; width:100%; min-height:52px; resize:vertical;"></textarea>
     </div>
 
     <!-- DOSYA -->
@@ -510,6 +583,10 @@
         <input type="file" id="any-file" multiple style="display:none" onchange="addFiles(event)">
       </div>
       <div class="file-chips" id="file-chips"></div>
+      <!-- İsteğe bağlı metin -->
+      <hr class="section-divider" id="file-caption-divider" style="display:none">
+      <div class="section-caption-label" id="file-caption-label" style="display:none">💬 Açıklama (isteğe bağlı)</div>
+      <textarea id="file-caption-input" placeholder="Dosyalar için bir not ekle…" style="display:none; border:none; background:transparent; padding:0; font-size:14px; width:100%; min-height:52px; resize:vertical;"></textarea>
     </div>
 
     <div class="modal-actions">
@@ -519,17 +596,30 @@
   </div>
 </div>
 
+<!-- ─── MODAL: EDIT NOTE ───────────────────── -->
+<div class="overlay" id="edit-note-overlay">
+  <div class="modal edit-note-modal">
+    <button class="modal-close" onclick="closeModal('edit-note-overlay')">✕</button>
+    <h2>Notu Düzenle</h2>
+    <div id="edit-note-body"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('edit-note-overlay')">İptal</button>
+      <button class="btn btn-dark" onclick="saveEditNote()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ─── DATA ──────────────────────────────────────────────
 let data = JSON.parse(localStorage.getItem('notdefteri') || '{"cats":{},"notes":{}}');
 // cats: { id: { id, name, emoji, color, parentId } }
-// notes: { id: { id, catId, type, content, desc? } }
+// notes: { id: { id, catId, type, content, desc?, caption? } }
 
 function save() { localStorage.setItem('notdefteri', JSON.stringify(data)); }
 
 // ─── ROUTING ───────────────────────────────────────────
-let currentCatId = null; // null = root
-let breadcrumbTrail = []; // [{id, name, emoji}]
+let currentCatId = null;
+let breadcrumbTrail = [];
 
 function navigateTo(catId) {
   currentCatId = catId;
@@ -593,11 +683,9 @@ function renderDetail(catId) {
   const cat = data.cats[catId];
   if (!cat) return navigateTo(null);
 
-  // accent color
   document.getElementById('detail-emoji').textContent = cat.emoji;
   document.getElementById('detail-title').textContent  = cat.name;
 
-  // breadcrumb
   const ancestors = buildAncestors(catId);
   const bc = document.getElementById('breadcrumb');
   bc.innerHTML = `<span onclick="navigateTo(null)">🏠 Ana sayfa</span>`;
@@ -610,7 +698,6 @@ function renderDetail(catId) {
     }
   });
 
-  // sub cats
   const subcats = Object.values(data.cats).filter(c => c.parentId === catId);
   const sg = document.getElementById('subcat-grid');
   sg.innerHTML = '';
@@ -630,7 +717,6 @@ function renderDetail(catId) {
     sg.appendChild(chip);
   });
 
-  // notes
   const notes = Object.values(data.notes).filter(n => n.catId === catId);
   const nl = document.getElementById('notes-list');
   nl.innerHTML = '';
@@ -651,16 +737,25 @@ function makeNoteCard(note, accentColor) {
   } else if (note.type === 'link') {
     const desc = note.desc ? escHtml(note.desc) : escHtml(note.content);
     inner += `<div class="note-link"><a href="${escHtml(note.content)}" target="_blank" rel="noopener">${desc}</a></div>`;
+    if (note.desc) inner += `<div class="note-caption">${escHtml(note.content)}</div>`;
   } else if (note.type === 'image') {
     inner += `<img class="note-img" src="${note.content}" alt="Not görseli">`;
+    if (note.caption) inner += `<div class="note-caption">${escHtml(note.caption)}</div>`;
   } else if (note.type === 'file') {
     const fname = note.desc || 'Dosya';
     inner += `<div style="display:flex;align-items:center;gap:10px;padding:4px 0">
       <span style="font-size:22px">📄</span>
       <a href="${note.content}" download="${escHtml(fname)}" style="font-size:14px;color:#333;text-decoration:underline">${escHtml(fname)}</a>
     </div>`;
+    if (note.caption) inner += `<div class="note-caption">${escHtml(note.caption)}</div>`;
   }
-  inner += `<button class="note-del" onclick="deleteNote(event,'${note.id}')">✕</button>`;
+
+  inner += `
+    <div class="note-card-actions">
+      <button class="note-edit-btn" title="Düzenle" onclick="openEditNoteModal('${note.id}')">✏️</button>
+      <button class="note-del-btn"  title="Sil"     onclick="deleteNote(event,'${note.id}')">✕</button>
+    </div>
+  `;
   card.innerHTML = inner;
   return card;
 }
@@ -696,7 +791,6 @@ function openCatModal(parentId, editCatId) {
       parentId === null ? 'Kategori Ekle' : 'Alt Kategori Ekle';
   }
 
-  // render emojis
   const eg = document.getElementById('emoji-grid');
   eg.innerHTML = '';
   EMOJIS.forEach(e => {
@@ -713,7 +807,6 @@ function openCatModal(parentId, editCatId) {
     eg.appendChild(b);
   });
 
-  // render colors
   const cg = document.getElementById('color-grid');
   cg.innerHTML = '';
   COLORS.forEach(c => {
@@ -739,7 +832,6 @@ function saveCategory() {
   if (!name) { document.getElementById('cat-name-input').focus(); return; }
 
   if (editingCatId) {
-    // edit existing
     data.cats[editingCatId].name  = name;
     data.cats[editingCatId].emoji = selectedEmoji;
     data.cats[editingCatId].color = selectedColor;
@@ -776,8 +868,8 @@ function deleteCatRecursive(catId) {
 }
 
 // ─── NOTE MODAL ────────────────────────────────────────
-let noteImages = []; // [{dataUrl}]
-let noteFiles  = []; // [{name, dataUrl, size}]
+let noteImages = [];
+let noteFiles  = [];
 
 function openNoteModal() {
   noteImages = [];
@@ -789,8 +881,36 @@ function openNoteModal() {
   document.getElementById('file-chips').innerHTML  = '';
   document.getElementById('img-file').value  = '';
   document.getElementById('any-file').value  = '';
+  document.getElementById('img-caption-input').value = '';
+  document.getElementById('file-caption-input').value = '';
+  // hide captions
+  ['img-caption-divider','img-caption-label','img-caption-input',
+   'file-caption-divider','file-caption-label','file-caption-input'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
   document.getElementById('note-overlay').classList.add('open');
   setTimeout(() => document.getElementById('note-text-input').focus(), 80);
+}
+
+function showImgCaption() {
+  ['img-caption-divider','img-caption-label','img-caption-input'].forEach(id => {
+    document.getElementById(id).style.display = id === 'img-caption-input' ? 'block' : (id === 'img-caption-divider' ? 'block' : 'block');
+  });
+}
+function hideImgCaption() {
+  ['img-caption-divider','img-caption-label','img-caption-input'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+}
+function showFileCaption() {
+  ['file-caption-divider','file-caption-label','file-caption-input'].forEach(id => {
+    document.getElementById(id).style.display = id === 'file-caption-input' ? 'block' : 'block';
+  });
+}
+function hideFileCaption() {
+  ['file-caption-divider','file-caption-label','file-caption-input'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
 }
 
 function addImages(e) {
@@ -800,6 +920,7 @@ function addImages(e) {
     reader.onload = ev => {
       noteImages.push({ dataUrl: ev.target.result });
       renderImgChips();
+      showImgCaption();
     };
     reader.readAsDataURL(file);
   });
@@ -815,6 +936,7 @@ function renderImgChips() {
     chip.innerHTML = `<img src="${img.dataUrl}"><button class="ic-del" onclick="removeImg(${i})">✕</button>`;
     c.appendChild(chip);
   });
+  if (noteImages.length === 0) hideImgCaption();
 }
 
 function removeImg(i) {
@@ -829,6 +951,7 @@ function addFiles(e) {
     reader.onload = ev => {
       noteFiles.push({ name: file.name, dataUrl: ev.target.result, size: file.size });
       renderFileChips();
+      showFileCaption();
     };
     reader.readAsDataURL(file);
   });
@@ -845,6 +968,7 @@ function renderFileChips() {
     chip.innerHTML = `<span>📄</span><span class="fc-name">${escHtml(f.name)}</span><span class="fc-size">${kb} KB</span><button class="fc-del" onclick="removeFile(${i})">✕</button>`;
     c.appendChild(chip);
   });
+  if (noteFiles.length === 0) hideFileCaption();
 }
 
 function removeFile(i) {
@@ -853,16 +977,16 @@ function removeFile(i) {
 }
 
 function saveNote() {
-  const text    = document.getElementById('note-text-input').value.trim();
-  let   linkUrl = document.getElementById('note-link-input').value.trim();
-  const linkDesc= document.getElementById('note-link-desc').value.trim();
+  const text     = document.getElementById('note-text-input').value.trim();
+  let   linkUrl  = document.getElementById('note-link-input').value.trim();
+  const linkDesc = document.getElementById('note-link-desc').value.trim();
+  const imgCaption  = document.getElementById('img-caption-input').value.trim();
+  const fileCaption = document.getElementById('file-caption-input').value.trim();
 
-  // validate: at least one thing filled
   if (!text && !linkUrl && noteImages.length === 0 && noteFiles.length === 0) return;
 
   if (linkUrl && !/^https?:\/\//i.test(linkUrl)) linkUrl = 'https://' + linkUrl;
 
-  // save each part as a separate note so they each have their own card
   const timestamp = Date.now();
   let saved = 0;
 
@@ -876,11 +1000,11 @@ function saveNote() {
   }
   noteImages.forEach(img => {
     const id = 'note_' + (timestamp + saved++);
-    data.notes[id] = { id, catId: currentCatId, type: 'image', content: img.dataUrl, desc: '' };
+    data.notes[id] = { id, catId: currentCatId, type: 'image', content: img.dataUrl, desc: '', caption: imgCaption };
   });
   noteFiles.forEach(f => {
     const id = 'note_' + (timestamp + saved++);
-    data.notes[id] = { id, catId: currentCatId, type: 'file', content: f.dataUrl, desc: f.name };
+    data.notes[id] = { id, catId: currentCatId, type: 'file', content: f.dataUrl, desc: f.name, caption: fileCaption };
   });
 
   save();
@@ -892,6 +1016,93 @@ function deleteNote(e, noteId) {
   e.stopPropagation();
   delete data.notes[noteId];
   save();
+  renderDetail(currentCatId);
+}
+
+// ─── EDIT NOTE MODAL ───────────────────────────────────
+let editingNoteId = null;
+
+function openEditNoteModal(noteId) {
+  editingNoteId = noteId;
+  const note = data.notes[noteId];
+  if (!note) return;
+
+  const body = document.getElementById('edit-note-body');
+  body.innerHTML = '';
+
+  if (note.type === 'text') {
+    body.innerHTML = `
+      <div class="field">
+        <label>Metin</label>
+        <textarea id="edit-content" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:14px;background:var(--bg);color:var(--text);outline:none;resize:vertical;min-height:100px;transition:border-color .15s;">${escHtmlAttr(note.content)}</textarea>
+      </div>
+    `;
+  } else if (note.type === 'link') {
+    body.innerHTML = `
+      <div class="field">
+        <label>Bağlantı URL</label>
+        <input type="text" id="edit-content" value="${escHtmlAttr(note.content)}" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:14px;background:var(--bg);color:var(--text);outline:none;">
+      </div>
+      <div class="field">
+        <label>Açıklama</label>
+        <input type="text" id="edit-desc" value="${escHtmlAttr(note.desc||'')}" placeholder="Açıklama (isteğe bağlı)" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:14px;background:var(--bg);color:var(--text);outline:none;">
+      </div>
+    `;
+  } else if (note.type === 'image') {
+    body.innerHTML = `
+      <div class="field">
+        <img class="edit-preview-img" src="${note.content}" alt="Görsel">
+        <label>Açıklama</label>
+        <textarea id="edit-caption" placeholder="Fotoğraf açıklaması…" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:14px;background:var(--bg);color:var(--text);outline:none;resize:vertical;min-height:72px;">${escHtmlAttr(note.caption||'')}</textarea>
+      </div>
+    `;
+  } else if (note.type === 'file') {
+    body.innerHTML = `
+      <div class="field">
+        <div class="edit-file-info"><span style="font-size:20px">📄</span><span style="font-size:13px;font-weight:500">${escHtml(note.desc||'Dosya')}</span></div>
+        <label>Açıklama</label>
+        <textarea id="edit-caption" placeholder="Dosya açıklaması…" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:14px;background:var(--bg);color:var(--text);outline:none;resize:vertical;min-height:72px;">${escHtmlAttr(note.caption||'')}</textarea>
+      </div>
+    `;
+  }
+
+  document.getElementById('edit-note-overlay').classList.add('open');
+  setTimeout(() => {
+    const first = body.querySelector('textarea, input');
+    if (first) first.focus();
+  }, 80);
+}
+
+function escHtmlAttr(str) {
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+function saveEditNote() {
+  const note = data.notes[editingNoteId];
+  if (!note) return;
+
+  if (note.type === 'text') {
+    const val = document.getElementById('edit-content').value.trim();
+    if (!val) return;
+    note.content = val;
+  } else if (note.type === 'link') {
+    let url = document.getElementById('edit-content').value.trim();
+    if (!url) return;
+    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+    note.content = url;
+    note.desc = document.getElementById('edit-desc').value.trim();
+  } else if (note.type === 'image') {
+    note.caption = document.getElementById('edit-caption').value.trim();
+  } else if (note.type === 'file') {
+    note.caption = document.getElementById('edit-caption').value.trim();
+  }
+
+  save();
+  closeModal('edit-note-overlay');
   renderDetail(currentCatId);
 }
 
