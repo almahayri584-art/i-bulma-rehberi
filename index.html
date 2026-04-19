@@ -117,20 +117,85 @@
   .color-dot:hover { transform: scale(1.15); }
   .color-dot.selected { border-color: #1a1a1a; transform: scale(1.12); }
 
-  /* note type tabs */
-  .type-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
-  .type-tab {
-    flex: 1; padding: 8px;
+  /* note sections - multi add */
+  .note-section {
     border: 1.5px solid var(--border);
-    border-radius: 9px;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
     background: var(--bg);
-    cursor: pointer;
-    font-size: 13px;
-    font-family: 'DM Sans', sans-serif;
-    text-align: center;
-    transition: background .12s, border-color .12s;
+    transition: border-color .15s;
   }
-  .type-tab.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+  .note-section:focus-within { border-color: #aaa; }
+  .note-section-label {
+    font-size: 11px; font-weight: 600; letter-spacing: .06em;
+    text-transform: uppercase; color: var(--text-muted);
+    margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+  }
+  .note-section textarea,
+  .note-section input[type=text] {
+    border: none; background: transparent; padding: 0;
+    font-size: 14px; width: 100%;
+  }
+  .note-section textarea:focus,
+  .note-section input[type=text]:focus { border: none; outline: none; }
+  .note-section textarea { min-height: 72px; resize: vertical; }
+
+  /* link row */
+  .link-row { display: flex; flex-direction: column; gap: 6px; }
+  .link-row input + input { border-top: 1px solid var(--border); padding-top: 6px; }
+
+  /* upload zones */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 9px;
+    padding: 14px;
+    text-align: center;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 12px;
+    transition: border-color .15s, background .15s;
+  }
+  .upload-zone:hover { border-color: #aaa; background: #f0ece6; }
+  .upload-zone.has-file { border-style: solid; border-color: #bbb; }
+
+  /* file chips */
+  .file-chips { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+  .file-chip {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 10px;
+    background: var(--surface);
+    border-radius: 8px;
+    font-size: 12px;
+    border: 1px solid var(--border);
+  }
+  .file-chip .fc-name { flex: 1; font-weight: 500; word-break: break-all; }
+  .file-chip .fc-size { color: var(--text-muted); white-space: nowrap; }
+  .file-chip .fc-del {
+    background: none; border: none; cursor: pointer;
+    color: var(--text-muted); font-size: 13px; padding: 0 2px;
+    line-height: 1;
+  }
+  .file-chip .fc-del:hover { color: #c00; }
+
+  /* image preview grid */
+  .img-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .img-chip {
+    position: relative; width: 72px; height: 72px;
+    border-radius: 8px; overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .img-chip img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .img-chip .ic-del {
+    position: absolute; top: 3px; right: 3px;
+    background: rgba(0,0,0,.55); color: #fff;
+    border: none; cursor: pointer;
+    border-radius: 50%; width: 18px; height: 18px;
+    font-size: 10px; display: flex; align-items: center; justify-content: center;
+    line-height: 1;
+  }
+
+  .note-modal { width: 480px; max-height: 88vh; overflow-y: auto; }
 
   /* ─── BUTTONS ─────────────────────────── */
   .btn {
@@ -408,47 +473,45 @@
 
 <!-- ─── MODAL: NOTE ────────────────────────── -->
 <div class="overlay" id="note-overlay">
-  <div class="modal">
+  <div class="modal note-modal">
     <button class="modal-close" onclick="closeModal('note-overlay')">✕</button>
     <h2>Not Ekle</h2>
-    <div class="type-tabs">
-      <button class="type-tab active" data-type="text" onclick="switchNoteType('text')">✏️ Metin</button>
-      <button class="type-tab" data-type="link" onclick="switchNoteType('link')">🔗 Bağlantı</button>
-      <button class="type-tab" data-type="image" onclick="switchNoteType('image')">🖼 Fotoğraf</button>
-      <button class="type-tab" data-type="file" onclick="switchNoteType('file')">📎 Dosya</button>
-    </div>
-    <!-- text -->
-    <div id="note-text-area" class="field">
-      <label>Not</label>
+
+    <!-- METIN -->
+    <div class="note-section">
+      <div class="note-section-label">✏️ Metin</div>
       <textarea id="note-text-input" placeholder="Bir şeyler yaz…"></textarea>
     </div>
-    <!-- link -->
-    <div id="note-link-area" class="field" style="display:none">
-      <label>Bağlantı</label>
-      <input type="text" id="note-link-input" placeholder="https://…">
-      <div class="field" style="margin-top:10px">
-        <label>Açıklama (isteğe bağlı)</label>
-        <input type="text" id="note-link-desc" placeholder="Bağlantı açıklaması">
+
+    <!-- BAĞLANTI -->
+    <div class="note-section">
+      <div class="note-section-label">🔗 Bağlantı</div>
+      <div class="link-row">
+        <input type="text" id="note-link-input" placeholder="https://…">
+        <input type="text" id="note-link-desc" placeholder="Açıklama (isteğe bağlı)">
       </div>
     </div>
-    <!-- image -->
-    <div id="note-image-area" class="field" style="display:none">
-      <label>Fotoğraf</label>
-      <div class="upload-area" onclick="document.getElementById('img-file').click()">
-        📁 Dosya seç veya buraya tıkla
-        <input type="file" id="img-file" accept="image/*" style="display:none" onchange="previewImage(event)">
-        <img id="img-preview" alt="Önizleme">
+
+    <!-- FOTOĞRAF -->
+    <div class="note-section">
+      <div class="note-section-label">🖼 Fotoğraf</div>
+      <div class="upload-zone" id="img-zone" onclick="document.getElementById('img-file').click()">
+        + Fotoğraf ekle
+        <input type="file" id="img-file" accept="image/*" multiple style="display:none" onchange="addImages(event)">
       </div>
+      <div class="img-chips" id="img-chips"></div>
     </div>
-    <!-- file -->
-    <div id="note-file-area" class="field" style="display:none">
-      <label>Dosya</label>
-      <div class="upload-area" onclick="document.getElementById('any-file').click()">
-        📎 Dosya seç veya buraya tıkla
-        <input type="file" id="any-file" style="display:none" onchange="previewFile(event)">
-        <div id="file-preview" style="display:none;margin-top:10px;font-size:13px;color:var(--text);display:none;align-items:center;gap:8px;padding:8px 12px;background:var(--bg);border-radius:8px;"></div>
+
+    <!-- DOSYA -->
+    <div class="note-section">
+      <div class="note-section-label">📎 Dosya</div>
+      <div class="upload-zone" id="file-zone" onclick="document.getElementById('any-file').click()">
+        + Dosya ekle
+        <input type="file" id="any-file" multiple style="display:none" onchange="addFiles(event)">
       </div>
+      <div class="file-chips" id="file-chips"></div>
     </div>
+
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('note-overlay')">İptal</button>
       <button class="btn btn-dark" onclick="saveNote()">Ekle</button>
@@ -713,82 +776,113 @@ function deleteCatRecursive(catId) {
 }
 
 // ─── NOTE MODAL ────────────────────────────────────────
-let noteType = 'text';
-let imageDataUrl = null;
-let fileData = null; // { name, dataUrl, mime }
+let noteImages = []; // [{dataUrl}]
+let noteFiles  = []; // [{name, dataUrl, size}]
 
 function openNoteModal() {
-  noteType = 'text';
-  imageDataUrl = null;
-  fileData = null;
+  noteImages = [];
+  noteFiles  = [];
   document.getElementById('note-text-input').value = '';
   document.getElementById('note-link-input').value = '';
-  document.getElementById('note-link-desc').value = '';
-  document.getElementById('img-preview').style.display = 'none';
-  document.getElementById('img-preview').src = '';
-  const fp = document.getElementById('file-preview');
-  fp.style.display = 'none'; fp.innerHTML = '';
-  switchNoteType('text');
+  document.getElementById('note-link-desc').value  = '';
+  document.getElementById('img-chips').innerHTML   = '';
+  document.getElementById('file-chips').innerHTML  = '';
+  document.getElementById('img-file').value  = '';
+  document.getElementById('any-file').value  = '';
   document.getElementById('note-overlay').classList.add('open');
   setTimeout(() => document.getElementById('note-text-input').focus(), 80);
 }
 
-function switchNoteType(type) {
-  noteType = type;
-  document.querySelectorAll('.type-tab').forEach(t => t.classList.toggle('active', t.dataset.type === type));
-  document.getElementById('note-text-area').style.display  = type === 'text'  ? '' : 'none';
-  document.getElementById('note-link-area').style.display  = type === 'link'  ? '' : 'none';
-  document.getElementById('note-image-area').style.display = type === 'image' ? '' : 'none';
-  document.getElementById('note-file-area').style.display  = type === 'file'  ? '' : 'none';
+function addImages(e) {
+  const files = Array.from(e.target.files);
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      noteImages.push({ dataUrl: ev.target.result });
+      renderImgChips();
+    };
+    reader.readAsDataURL(file);
+  });
+  e.target.value = '';
 }
 
-function previewImage(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    imageDataUrl = ev.target.result;
-    const prev = document.getElementById('img-preview');
-    prev.src = imageDataUrl;
-    prev.style.display = 'block';
-  };
-  reader.readAsDataURL(file);
+function renderImgChips() {
+  const c = document.getElementById('img-chips');
+  c.innerHTML = '';
+  noteImages.forEach((img, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'img-chip';
+    chip.innerHTML = `<img src="${img.dataUrl}"><button class="ic-del" onclick="removeImg(${i})">✕</button>`;
+    c.appendChild(chip);
+  });
 }
 
-function previewFile(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    fileData = { name: file.name, dataUrl: ev.target.result, mime: file.type, size: file.size };
-    const fp = document.getElementById('file-preview');
-    const kb = (file.size / 1024).toFixed(1);
-    fp.style.display = 'flex';
-    fp.innerHTML = `<span style="font-size:20px">📄</span> <span><strong>${escHtml(file.name)}</strong><br><span style="color:var(--text-muted);font-size:11px">${kb} KB</span></span>`;
-  };
-  reader.readAsDataURL(file);
+function removeImg(i) {
+  noteImages.splice(i, 1);
+  renderImgChips();
+}
+
+function addFiles(e) {
+  const files = Array.from(e.target.files);
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      noteFiles.push({ name: file.name, dataUrl: ev.target.result, size: file.size });
+      renderFileChips();
+    };
+    reader.readAsDataURL(file);
+  });
+  e.target.value = '';
+}
+
+function renderFileChips() {
+  const c = document.getElementById('file-chips');
+  c.innerHTML = '';
+  noteFiles.forEach((f, i) => {
+    const kb = (f.size / 1024).toFixed(1);
+    const chip = document.createElement('div');
+    chip.className = 'file-chip';
+    chip.innerHTML = `<span>📄</span><span class="fc-name">${escHtml(f.name)}</span><span class="fc-size">${kb} KB</span><button class="fc-del" onclick="removeFile(${i})">✕</button>`;
+    c.appendChild(chip);
+  });
+}
+
+function removeFile(i) {
+  noteFiles.splice(i, 1);
+  renderFileChips();
 }
 
 function saveNote() {
-  let content = '', desc = '';
-  if (noteType === 'text') {
-    content = document.getElementById('note-text-input').value.trim();
-    if (!content) return;
-  } else if (noteType === 'link') {
-    content = document.getElementById('note-link-input').value.trim();
-    desc    = document.getElementById('note-link-desc').value.trim();
-    if (!content) return;
-    if (!/^https?:\/\//i.test(content)) content = 'https://' + content;
-  } else if (noteType === 'image') {
-    if (!imageDataUrl) return;
-    content = imageDataUrl;
-  } else if (noteType === 'file') {
-    if (!fileData) return;
-    content = fileData.dataUrl;
-    desc    = fileData.name;
+  const text    = document.getElementById('note-text-input').value.trim();
+  let   linkUrl = document.getElementById('note-link-input').value.trim();
+  const linkDesc= document.getElementById('note-link-desc').value.trim();
+
+  // validate: at least one thing filled
+  if (!text && !linkUrl && noteImages.length === 0 && noteFiles.length === 0) return;
+
+  if (linkUrl && !/^https?:\/\//i.test(linkUrl)) linkUrl = 'https://' + linkUrl;
+
+  // save each part as a separate note so they each have their own card
+  const timestamp = Date.now();
+  let saved = 0;
+
+  if (text) {
+    const id = 'note_' + (timestamp + saved++);
+    data.notes[id] = { id, catId: currentCatId, type: 'text', content: text, desc: '' };
   }
-  const id = 'note_' + Date.now();
-  data.notes[id] = { id, catId: currentCatId, type: noteType, content, desc };
+  if (linkUrl) {
+    const id = 'note_' + (timestamp + saved++);
+    data.notes[id] = { id, catId: currentCatId, type: 'link', content: linkUrl, desc: linkDesc };
+  }
+  noteImages.forEach(img => {
+    const id = 'note_' + (timestamp + saved++);
+    data.notes[id] = { id, catId: currentCatId, type: 'image', content: img.dataUrl, desc: '' };
+  });
+  noteFiles.forEach(f => {
+    const id = 'note_' + (timestamp + saved++);
+    data.notes[id] = { id, catId: currentCatId, type: 'file', content: f.dataUrl, desc: f.name };
+  });
+
   save();
   closeModal('note-overlay');
   renderDetail(currentCatId);
