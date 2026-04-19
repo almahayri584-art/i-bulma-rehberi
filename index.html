@@ -190,17 +190,21 @@
   .cat-card .cat-emoji { font-size: 28px; }
   .cat-card .cat-name { font-weight: 500; font-size: 15px; }
   .cat-card .cat-count { font-size: 12px; color: var(--text-muted); }
-  .cat-card .cat-del {
-    position: absolute; top: 10px; right: 12px;
-    background: none; border: none; cursor: pointer;
-    font-size: 15px; opacity: 0;
-    transition: opacity .15s;
-    color: var(--text-muted);
-    line-height: 1;
-    padding: 2px 4px;
+  .cat-card-actions {
+    position: absolute; top: 10px; right: 10px;
+    display: flex; gap: 2px;
+    opacity: 0; transition: opacity .15s;
   }
-  .cat-card:hover .cat-del { opacity: 1; }
-  .cat-card .cat-del:hover { color: #c00; }
+  .cat-card:hover .cat-card-actions { opacity: 1; }
+  .cat-card-actions button {
+    background: none; border: none; cursor: pointer;
+    font-size: 14px; color: var(--text-muted);
+    line-height: 1; padding: 3px 5px; border-radius: 6px;
+    transition: background .12s, color .12s;
+  }
+  .cat-card-actions button:hover { background: #f0ece6; }
+  .cat-card-actions .btn-edit:hover { color: #555; }
+  .cat-card-actions .btn-del:hover  { color: #c00; }
 
   /* add card */
   .add-cat-card {
@@ -288,7 +292,7 @@
   .subcat-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
   .subcat-chip {
     display: inline-flex; align-items: center; gap: 6px;
-    padding: 7px 14px;
+    padding: 7px 10px 7px 14px;
     border-radius: 20px;
     cursor: pointer;
     font-size: 13px;
@@ -297,8 +301,24 @@
     background: var(--surface);
     box-shadow: var(--shadow);
     transition: transform .13s, box-shadow .13s;
+    position: relative;
   }
   .subcat-chip:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .subcat-chip .chip-label { flex: 1; }
+  .subcat-chip .chip-actions {
+    display: flex; gap: 1px; margin-left: 4px;
+    opacity: 0; transition: opacity .13s;
+  }
+  .subcat-chip:hover .chip-actions { opacity: 1; }
+  .subcat-chip .chip-actions button {
+    background: none; border: none; cursor: pointer;
+    font-size: 12px; color: var(--text-muted);
+    padding: 2px 4px; border-radius: 5px;
+    line-height: 1;
+    transition: background .12s, color .12s;
+  }
+  .subcat-chip .chip-actions button:hover { background: rgba(0,0,0,0.07); }
+  .subcat-chip .chip-actions .chip-del:hover { color: #c00; }
 
   /* empty state */
   .empty { color: var(--text-muted); font-size: 14px; padding: 24px 0; }
@@ -347,6 +367,7 @@
       <span class="big-emoji" id="detail-emoji"></span>
       <h2 id="detail-title"></h2>
       <div class="detail-actions">
+        <button class="btn btn-ghost btn-sm" onclick="editCategory({stopPropagation:()=>{}}, currentCatId)">✏️ Düzenle</button>
         <button class="btn btn-ghost btn-sm" onclick="openCatModal(currentCatId)">+ Alt Kategori</button>
         <button class="btn btn-dark btn-sm" onclick="openNoteModal()">+ Not</button>
       </div>
@@ -394,6 +415,7 @@
       <button class="type-tab active" data-type="text" onclick="switchNoteType('text')">✏️ Metin</button>
       <button class="type-tab" data-type="link" onclick="switchNoteType('link')">🔗 Bağlantı</button>
       <button class="type-tab" data-type="image" onclick="switchNoteType('image')">🖼 Fotoğraf</button>
+      <button class="type-tab" data-type="file" onclick="switchNoteType('file')">📎 Dosya</button>
     </div>
     <!-- text -->
     <div id="note-text-area" class="field">
@@ -416,6 +438,15 @@
         📁 Dosya seç veya buraya tıkla
         <input type="file" id="img-file" accept="image/*" style="display:none" onchange="previewImage(event)">
         <img id="img-preview" alt="Önizleme">
+      </div>
+    </div>
+    <!-- file -->
+    <div id="note-file-area" class="field" style="display:none">
+      <label>Dosya</label>
+      <div class="upload-area" onclick="document.getElementById('any-file').click()">
+        📎 Dosya seç veya buraya tıkla
+        <input type="file" id="any-file" style="display:none" onchange="previewFile(event)">
+        <div id="file-preview" style="display:none;margin-top:10px;font-size:13px;color:var(--text);display:none;align-items:center;gap:8px;padding:8px 12px;background:var(--bg);border-radius:8px;"></div>
       </div>
     </div>
     <div class="modal-actions">
@@ -482,8 +513,11 @@ function makeCatCard(cat) {
   card.style.borderColor = cat.color + '55';
   card.style.background = cat.color + '12';
   card.innerHTML = `
-    <button class="cat-del" onclick="deleteCategory(event,'${cat.id}')">✕</button>
-    <span class="cat-emoji">${cat.emoji}</span>
+    <div class="cat-card-actions">
+      <button class="btn-edit" title="Düzenle" onclick="editCategory(event,'${cat.id}')">✏️</button>
+      <button class="btn-del"  title="Sil"     onclick="deleteCategory(event,'${cat.id}')">✕</button>
+    </div>
+    <span class="cat-emoji">${cat.emoji || '📁'}</span>
     <span class="cat-name">${cat.name}</span>
     <span class="cat-count">${noteCount} not · ${subCount} alt kategori</span>
   `;
@@ -522,8 +556,14 @@ function renderDetail(catId) {
     chip.className = 'subcat-chip';
     chip.style.borderColor = sc.color + '88';
     chip.style.background  = sc.color + '18';
-    chip.innerHTML = `${sc.emoji} ${sc.name}`;
-    chip.onclick = () => navigateTo(sc.id);
+    chip.innerHTML = `
+      <span class="chip-label">${sc.emoji || ''} ${sc.name}</span>
+      <span class="chip-actions">
+        <button class="chip-edit" title="Düzenle" onclick="editCategory(event,'${sc.id}')">✏️</button>
+        <button class="chip-del"  title="Sil"     onclick="deleteCategory(event,'${sc.id}')">✕</button>
+      </span>
+    `;
+    chip.onclick = (e) => { if(!e.target.closest('.chip-actions')) navigateTo(sc.id); };
     sg.appendChild(chip);
   });
 
@@ -541,7 +581,7 @@ function makeNoteCard(note, accentColor) {
   const card = document.createElement('div');
   card.className = 'note-card';
   card.style.setProperty('--accent', accentColor || '#ccc');
-  const typeLabel = { text:'Metin', link:'Bağlantı', image:'Fotoğraf' };
+  const typeLabel = { text:'Metin', link:'Bağlantı', image:'Fotoğraf', file:'Dosya' };
   let inner = `<div class="note-type-badge">${typeLabel[note.type] || ''}</div>`;
   if (note.type === 'text') {
     inner += `<div class="note-text">${escHtml(note.content)}</div>`;
@@ -550,6 +590,12 @@ function makeNoteCard(note, accentColor) {
     inner += `<div class="note-link"><a href="${escHtml(note.content)}" target="_blank" rel="noopener">${desc}</a></div>`;
   } else if (note.type === 'image') {
     inner += `<img class="note-img" src="${note.content}" alt="Not görseli">`;
+  } else if (note.type === 'file') {
+    const fname = note.desc || 'Dosya';
+    inner += `<div style="display:flex;align-items:center;gap:10px;padding:4px 0">
+      <span style="font-size:22px">📄</span>
+      <a href="${note.content}" download="${escHtml(fname)}" style="font-size:14px;color:#333;text-decoration:underline">${escHtml(fname)}</a>
+    </div>`;
   }
   inner += `<button class="note-del" onclick="deleteNote(event,'${note.id}')">✕</button>`;
   card.innerHTML = inner;
@@ -561,20 +607,31 @@ function escHtml(str) {
 }
 
 // ─── CATEGORY MODAL ────────────────────────────────────
-const EMOJIS = ['📁','📂','⭐','🔥','💡','📝','🎨','🤖','🎯','📚','🌿','🎵','💻','🔬','🏋️','✈️','🍕','💬','🔑','📊','🎮','💰','📷','🌟','🗂'];
+const EMOJIS = ['','📁','📂','⭐','🔥','💡','📝','🎨','🤖','🎯','📚','🌿','🎵','💻','🔬','🏋️','✈️','🍕','💬','🔑','📊','🎮','💰','📷','🌟','🗂'];
 const COLORS = ['#e74c3c','#e67e22','#f1c40f','#2ecc71','#1abc9c','#3498db','#9b59b6','#34495e','#e91e63','#795548'];
 
-let selectedEmoji = EMOJIS[0];
+let selectedEmoji = EMOJIS[1];
 let selectedColor = COLORS[5];
 let parentIdForNewCat = null;
+let editingCatId = null;
 
-function openCatModal(parentId) {
+function openCatModal(parentId, editCatId) {
+  editingCatId = editCatId || null;
   parentIdForNewCat = parentId;
-  selectedEmoji = EMOJIS[0];
-  selectedColor = COLORS[5];
-  document.getElementById('cat-name-input').value = '';
-  document.getElementById('cat-modal-title').textContent =
-    parentId === null ? 'Kategori Ekle' : 'Alt Kategori Ekle';
+
+  if (editingCatId) {
+    const cat = data.cats[editingCatId];
+    selectedEmoji = cat.emoji || '';
+    selectedColor = cat.color;
+    document.getElementById('cat-name-input').value = cat.name;
+    document.getElementById('cat-modal-title').textContent = 'Kategoriyi Düzenle';
+  } else {
+    selectedEmoji = EMOJIS[1];
+    selectedColor = COLORS[5];
+    document.getElementById('cat-name-input').value = '';
+    document.getElementById('cat-modal-title').textContent =
+      parentId === null ? 'Kategori Ekle' : 'Alt Kategori Ekle';
+  }
 
   // render emojis
   const eg = document.getElementById('emoji-grid');
@@ -582,8 +639,14 @@ function openCatModal(parentId) {
   EMOJIS.forEach(e => {
     const b = document.createElement('button');
     b.className = 'emoji-btn' + (e === selectedEmoji ? ' selected' : '');
-    b.textContent = e;
-    b.onclick = () => { selectedEmoji = e; eg.querySelectorAll('.emoji-btn').forEach(x => x.classList.remove('selected')); b.classList.add('selected'); };
+    b.textContent = e === '' ? '∅' : e;
+    b.title = e === '' ? 'Emoji yok' : e;
+    b.dataset.val = e;
+    b.onclick = () => {
+      selectedEmoji = e;
+      eg.querySelectorAll('.emoji-btn').forEach(x => x.classList.remove('selected'));
+      b.classList.add('selected');
+    };
     eg.appendChild(b);
   });
 
@@ -602,15 +665,35 @@ function openCatModal(parentId) {
   setTimeout(() => document.getElementById('cat-name-input').focus(), 80);
 }
 
+function editCategory(e, catId) {
+  e.stopPropagation();
+  const cat = data.cats[catId];
+  openCatModal(cat.parentId || null, catId);
+}
+
 function saveCategory() {
   const name = document.getElementById('cat-name-input').value.trim();
   if (!name) { document.getElementById('cat-name-input').focus(); return; }
-  const id = 'cat_' + Date.now();
-  data.cats[id] = { id, name, emoji: selectedEmoji, color: selectedColor, parentId: parentIdForNewCat };
-  save();
-  closeModal('cat-overlay');
-  if (parentIdForNewCat === null) renderRootGrid();
-  else renderDetail(parentIdForNewCat);
+
+  if (editingCatId) {
+    // edit existing
+    data.cats[editingCatId].name  = name;
+    data.cats[editingCatId].emoji = selectedEmoji;
+    data.cats[editingCatId].color = selectedColor;
+    save();
+    closeModal('cat-overlay');
+    const cat = data.cats[editingCatId];
+    if (cat.parentId) renderDetail(cat.parentId);
+    else if (currentCatId === editingCatId) renderDetail(editingCatId);
+    else renderRootGrid();
+  } else {
+    const id = 'cat_' + Date.now();
+    data.cats[id] = { id, name, emoji: selectedEmoji, color: selectedColor, parentId: parentIdForNewCat };
+    save();
+    closeModal('cat-overlay');
+    if (parentIdForNewCat === null) renderRootGrid();
+    else renderDetail(parentIdForNewCat);
+  }
 }
 
 function deleteCategory(e, catId) {
@@ -632,15 +715,19 @@ function deleteCatRecursive(catId) {
 // ─── NOTE MODAL ────────────────────────────────────────
 let noteType = 'text';
 let imageDataUrl = null;
+let fileData = null; // { name, dataUrl, mime }
 
 function openNoteModal() {
   noteType = 'text';
   imageDataUrl = null;
+  fileData = null;
   document.getElementById('note-text-input').value = '';
   document.getElementById('note-link-input').value = '';
   document.getElementById('note-link-desc').value = '';
   document.getElementById('img-preview').style.display = 'none';
   document.getElementById('img-preview').src = '';
+  const fp = document.getElementById('file-preview');
+  fp.style.display = 'none'; fp.innerHTML = '';
   switchNoteType('text');
   document.getElementById('note-overlay').classList.add('open');
   setTimeout(() => document.getElementById('note-text-input').focus(), 80);
@@ -652,6 +739,7 @@ function switchNoteType(type) {
   document.getElementById('note-text-area').style.display  = type === 'text'  ? '' : 'none';
   document.getElementById('note-link-area').style.display  = type === 'link'  ? '' : 'none';
   document.getElementById('note-image-area').style.display = type === 'image' ? '' : 'none';
+  document.getElementById('note-file-area').style.display  = type === 'file'  ? '' : 'none';
 }
 
 function previewImage(e) {
@@ -663,6 +751,20 @@ function previewImage(e) {
     const prev = document.getElementById('img-preview');
     prev.src = imageDataUrl;
     prev.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function previewFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    fileData = { name: file.name, dataUrl: ev.target.result, mime: file.type, size: file.size };
+    const fp = document.getElementById('file-preview');
+    const kb = (file.size / 1024).toFixed(1);
+    fp.style.display = 'flex';
+    fp.innerHTML = `<span style="font-size:20px">📄</span> <span><strong>${escHtml(file.name)}</strong><br><span style="color:var(--text-muted);font-size:11px">${kb} KB</span></span>`;
   };
   reader.readAsDataURL(file);
 }
@@ -680,6 +782,10 @@ function saveNote() {
   } else if (noteType === 'image') {
     if (!imageDataUrl) return;
     content = imageDataUrl;
+  } else if (noteType === 'file') {
+    if (!fileData) return;
+    content = fileData.dataUrl;
+    desc    = fileData.name;
   }
   const id = 'note_' + Date.now();
   data.notes[id] = { id, catId: currentCatId, type: noteType, content, desc };
