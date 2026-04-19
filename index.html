@@ -4,1189 +4,704 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KariyerAI</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<title>Notlarım</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#09090f;--s1:#111118;--s2:#1a1a24;--bd:#252532;--ac:#6c63ff;--ac2:#ff6584;--ac3:#43e97b;--tx:#f0f0f8;--tx2:#8888aa;--tx3:#44445a;--r:14px}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 70% 50% at 15% 10%,rgba(108,99,255,.1) 0%,transparent 60%),radial-gradient(ellipse 50% 40% at 85% 85%,rgba(255,101,132,.07) 0%,transparent 50%)}
-::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* HEADER */
-.hdr{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:15px 28px;background:rgba(9,9,15,.88);backdrop-filter:blur(20px);border-bottom:1px solid var(--bd)}
-.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;background:linear-gradient(135deg,var(--ac),var(--ac2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.logo em{font-style:normal;-webkit-text-fill-color:var(--tx)}
-.hsteps{display:flex;gap:6px;align-items:center}
-.sdot{width:7px;height:7px;border-radius:50%;background:var(--bd);cursor:pointer;transition:.3s;border:none}
-.sdot.a{background:var(--ac);width:22px;border-radius:4px}
-.sdot.d{background:var(--ac3)}
-.hright{display:flex;gap:8px;align-items:center}
-.lbox{display:flex;gap:3px;background:var(--s2);padding:3px;border-radius:100px;border:1px solid var(--bd)}
-.lb{padding:5px 12px;border-radius:100px;font-size:12px;font-weight:700;border:none;cursor:pointer;background:transparent;color:var(--tx2);font-family:'DM Sans',sans-serif;transition:.2s}
-.lb.on{background:var(--ac);color:#fff}
+  :root {
+    --bg: #f5f2ee;
+    --surface: #fff;
+    --text: #1a1a1a;
+    --text-muted: #888;
+    --border: #e8e4df;
+    --shadow: 0 2px 16px rgba(0,0,0,0.07);
+    --radius: 14px;
+  }
 
-/* BUTTONS */
-.btn{display:inline-flex;align-items:center;gap:7px;padding:11px 22px;border-radius:100px;font-size:14px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;border:none;transition:.22s}
-.bp{background:linear-gradient(135deg,var(--ac),#9b8cff);color:#fff;box-shadow:0 6px 24px rgba(108,99,255,.3)}
-.bp:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(108,99,255,.45)}
-.bs{background:var(--s2);color:var(--tx);border:1px solid var(--bd)}
-.bs:hover{border-color:var(--ac);color:var(--ac)}
-.bg{background:transparent;color:var(--tx2)}
-.bg:hover{color:var(--tx)}
-.sm{padding:8px 15px;font-size:13px}
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+  }
 
-/* PAGES */
-.pg{display:none;animation:fu .4s ease;position:relative;z-index:1}
-.pg.on{display:block}
-@keyframes fu{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+  /* ─── OVERLAY ─────────────────────────── */
+  .overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.25);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .overlay.open { display: flex; }
 
-/* LAYOUT */
-.wrap{max-width:820px;margin:0 auto;padding:42px 18px}
-.prog{height:3px;background:var(--bd);border-radius:99px;margin-bottom:34px;overflow:hidden}
-.pf{height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));border-radius:99px;transition:width .5s}
-.stag{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--ac);margin-bottom:10px;display:block}
-.sh h2{font-family:'Syne',sans-serif;font-size:27px;font-weight:800;margin-bottom:9px}
-.sh p{color:var(--tx2);font-size:15px;line-height:1.6;margin-bottom:28px}
-.card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:22px}
-.div{height:1px;background:var(--bd);margin:22px 0}
-.nav{display:flex;justify-content:space-between;align-items:center;margin-top:34px;padding-top:18px;border-top:1px solid var(--bd)}
+  /* ─── MODAL ───────────────────────────── */
+  .modal {
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 32px;
+    width: 420px;
+    max-width: 95vw;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    position: relative;
+    animation: popIn .2s ease;
+  }
+  @keyframes popIn {
+    from { transform: scale(.94); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+  .modal h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    margin-bottom: 24px;
+    color: var(--text);
+  }
+  .modal-close {
+    position: absolute; top: 16px; right: 18px;
+    background: none; border: none;
+    font-size: 20px; cursor: pointer;
+    color: var(--text-muted);
+    line-height: 1;
+    padding: 4px;
+  }
+  .modal-close:hover { color: var(--text); }
 
-/* FORM */
-.fsec{margin-bottom:30px}
-.ftitle{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ac);margin-bottom:16px;padding-bottom:9px;border-bottom:1px solid var(--bd);display:block}
-.fg2{display:grid;grid-template-columns:1fr 1fr;gap:13px}
-.fg{display:flex;flex-direction:column;gap:6px}
-.fg.full{grid-column:1/-1}
-label{font-size:13px;font-weight:500;color:var(--tx2)}
-input,select,textarea{background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:11px 13px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--tx);width:100%;outline:none;transition:.2s}
-input:focus,select:focus,textarea:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(108,99,255,.12)}
-.err{border-color:var(--ac2)!important;box-shadow:0 0 0 3px rgba(255,101,132,.15)!important}
-textarea{resize:vertical;min-height:88px}
-select option{background:var(--s2)}
+  /* ─── FORM ELEMENTS ───────────────────── */
+  label { display: block; font-size: 12px; font-weight: 500; color: var(--text-muted); margin-bottom: 6px; letter-spacing: .04em; text-transform: uppercase; }
+  .field { margin-bottom: 18px; }
+  input[type=text], textarea, select {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    transition: border-color .15s;
+  }
+  input[type=text]:focus, textarea:focus, select:focus { border-color: #aaa; }
+  textarea { resize: vertical; min-height: 90px; }
 
-/* UPLOAD */
-.upz{border:2px dashed var(--bd);border-radius:var(--r);padding:34px;text-align:center;cursor:pointer;transition:.3s}
-.upz:hover{border-color:var(--ac);background:rgba(108,99,255,.04)}
-.upz h3{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin:9px 0 5px}
-.upz p{font-size:13px;color:var(--tx3)}
+  /* emoji picker */
+  .emoji-grid {
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .emoji-btn {
+    width: 36px; height: 36px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    cursor: pointer;
+    font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color .12s, background .12s;
+  }
+  .emoji-btn:hover { background: #ece8e2; }
+  .emoji-btn.selected { border-color: #555; background: #ece8e2; }
 
-/* HERO */
-.hero{min-height:calc(100vh - 56px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:56px 18px}
-.badge{display:inline-flex;align-items:center;gap:7px;padding:7px 15px;border:1px solid rgba(108,99,255,.35);border-radius:100px;font-size:12px;color:var(--ac);margin-bottom:26px;background:rgba(108,99,255,.07)}
-.dl{width:6px;height:6px;border-radius:50%;background:var(--ac3);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
-.hero h1{font-family:'Syne',sans-serif;font-size:clamp(36px,7vw,74px);font-weight:800;line-height:1.05;margin-bottom:18px;max-width:740px}
-.hl{background:linear-gradient(135deg,var(--ac),var(--ac2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero>p{font-size:16px;color:var(--tx2);max-width:500px;line-height:1.7;margin-bottom:38px;font-weight:300}
-.hacts{display:flex;gap:13px;flex-wrap:wrap;justify-content:center;margin-bottom:68px}
-.hcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:14px;max-width:820px;width:100%}
-.hcard{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:20px;text-align:left;cursor:pointer;transition:.3s}
-.hcard:hover{border-color:var(--ac);transform:translateY(-3px)}
-.hcn{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;color:var(--ac);margin-bottom:9px;text-transform:uppercase}
-.hcard h3{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:5px}
-.hcard p{font-size:12px;color:var(--tx3);line-height:1.5}
+  /* color picker */
+  .color-grid { display: flex; gap: 8px; flex-wrap: wrap; }
+  .color-dot {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2.5px solid transparent;
+    transition: transform .12s, border-color .12s;
+  }
+  .color-dot:hover { transform: scale(1.15); }
+  .color-dot.selected { border-color: #1a1a1a; transform: scale(1.12); }
 
-/* CV */
-.cvbox{background:#fff;color:#1a1a2e;border-radius:var(--r);padding:42px;font-family:'DM Sans',sans-serif;box-shadow:0 20px 60px rgba(0,0,0,.5);max-width:650px;margin:0 auto}
-.cvname{font-family:'Syne',sans-serif;font-size:25px;font-weight:800;color:#1a1a2e;margin-bottom:3px}
-.cvtitle{font-size:13px;color:#6c63ff;font-weight:500;margin-bottom:13px}
-.cvc{display:flex;gap:13px;flex-wrap:wrap;font-size:11px;color:#777;margin-bottom:18px;padding-bottom:15px;border-bottom:2px solid #6c63ff}
-.cvsec{margin-bottom:16px}
-.cvsect{font-family:'Syne',sans-serif;font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#6c63ff;margin-bottom:7px}
-.cvi{margin-bottom:9px}
-.cvir{display:flex;justify-content:space-between;align-items:flex-start}
-.cvit{font-weight:600;font-size:13px;color:#1a1a2e}
-.cvid{font-size:11px;color:#aaa;white-space:nowrap}
-.cvis{font-size:12px;color:#666;margin:2px 0}
-.cvidc{font-size:12px;color:#444;line-height:1.5;margin-top:3px}
-.cvskls{display:flex;flex-wrap:wrap;gap:5px}
-.cvsk{background:#f0eeff;color:#6c63ff;padding:3px 9px;border-radius:100px;font-size:11px;font-weight:500}
+  /* note type tabs */
+  .type-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+  .type-tab {
+    flex: 1; padding: 8px;
+    border: 1.5px solid var(--border);
+    border-radius: 9px;
+    background: var(--bg);
+    cursor: pointer;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    text-align: center;
+    transition: background .12s, border-color .12s;
+  }
+  .type-tab.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
 
-/* ATS */
-.atsc{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:22px;margin-bottom:22px}
-.atsrow{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
-.atsrng{width:106px;height:106px;position:relative;flex-shrink:0}
-.atsrng svg{transform:rotate(-90deg)}
-.atsnum{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.atsn{font-family:'Syne',sans-serif;font-size:25px;font-weight:800}
-.atsl{font-size:9px;color:var(--tx3);letter-spacing:1px}
-.atsiss{flex:1;display:flex;flex-direction:column;gap:7px}
-.ati{padding:8px 12px;border-radius:9px;font-size:13px}
-.ati.good{background:rgba(67,233,123,.08);border:1px solid rgba(67,233,123,.2);color:var(--ac3)}
-.ati.warn{background:rgba(255,200,0,.07);border:1px solid rgba(255,200,0,.2);color:#ffc800}
-.ati.bad{background:rgba(255,101,132,.08);border:1px solid rgba(255,101,132,.2);color:var(--ac2)}
+  /* ─── BUTTONS ─────────────────────────── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    transition: opacity .15s, transform .12s;
+  }
+  .btn:hover { opacity: .85; }
+  .btn:active { transform: scale(.97); }
+  .btn-dark { background: #1a1a1a; color: #fff; }
+  .btn-ghost { background: none; border: 1.5px solid var(--border); color: var(--text); }
+  .btn-sm { padding: 7px 14px; font-size: 13px; border-radius: 8px; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 6px; justify-content: flex-end; }
 
-/* TOGGLE */
-.tg{display:flex;gap:6px;flex-wrap:wrap}
-.tb{padding:7px 14px;border:1px solid var(--bd);border-radius:100px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--tx2);cursor:pointer;background:transparent;transition:.2s}
-.tb:hover{border-color:var(--ac);color:var(--ac)}
-.tb.sel{background:rgba(108,99,255,.2);border-color:var(--ac);color:var(--ac)}
+  /* ─── HEADER ──────────────────────────── */
+  header {
+    padding: 48px 60px 0;
+    display: flex; align-items: baseline; justify-content: space-between;
+  }
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 36px;
+    font-weight: 400;
+    letter-spacing: -.01em;
+  }
+  header h1 span { font-style: italic; color: #888; }
 
-/* TABS */
-.tabs{display:flex;gap:3px;background:var(--s2);border-radius:10px;padding:3px;margin-bottom:18px}
-.tab{flex:1;padding:9px;border-radius:8px;text-align:center;font-size:13px;font-weight:500;cursor:pointer;color:var(--tx2);border:none;background:transparent;font-family:'DM Sans',sans-serif;transition:.2s}
-.tab.on{background:var(--s1);color:var(--tx);box-shadow:0 2px 8px rgba(0,0,0,.3)}
-.tc{display:none}.tc.on{display:block}
+  /* ─── MAIN LAYOUT ─────────────────────── */
+  .container { padding: 32px 60px 60px; }
 
-/* JOBS */
-.jc{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:17px 21px;cursor:pointer;transition:.3s;display:flex;align-items:center;gap:13px;margin-bottom:11px}
-.jc:hover{border-color:var(--ac);transform:translateX(3px)}
-.jc.sel{border-color:var(--ac);background:rgba(108,99,255,.08)}
-.jlog{width:43px;height:43px;border-radius:11px;background:linear-gradient(135deg,var(--ac),var(--ac2));display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
-.ji{flex:1}
-.jt{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:3px}
-.jco{font-size:12px;color:var(--tx2);margin-bottom:6px}
-.jtgs{display:flex;gap:4px;flex-wrap:wrap}
-.jtg{padding:2px 8px;border-radius:100px;font-size:11px;background:var(--s2);color:var(--tx2);border:1px solid var(--bd)}
-.jtg.m{background:rgba(67,233,123,.1);color:var(--ac3);border-color:rgba(67,233,123,.3)}
-.ms{font-family:'Syne',sans-serif;font-size:19px;font-weight:800;color:var(--ac3);text-align:center;min-width:52px;flex-shrink:0}
-.ms span{display:block;font-size:10px;color:var(--tx3);font-family:'DM Sans',sans-serif;font-weight:400}
+  /* ─── CATEGORY GRID ───────────────────── */
+  .cat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 28px;
+  }
 
-/* COMPANY */
-.col{width:62px;height:62px;border-radius:16px;background:linear-gradient(135deg,#FF6B6B,#FFE66D);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
-.cls{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
-.cl{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border:1px solid var(--bd);border-radius:100px;font-size:12px;color:var(--tx2);text-decoration:none;cursor:pointer;transition:.2s;background:var(--s2)}
-.cl:hover{border-color:var(--ac);color:var(--ac)}
-.ig{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:18px}
-.ib{background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:13px}
-.ibl{font-size:10px;color:var(--tx3);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px}
-.ibv{font-family:'Syne',sans-serif;font-size:14px;font-weight:700}
-.rev{background:var(--s2);border-radius:10px;padding:13px;margin-bottom:8px}
-.revr{display:flex;justify-content:space-between;margin-bottom:5px}
-.reva{font-size:13px;font-weight:500}
-.sts{color:#ffc800;font-size:11px}
-.revt{font-size:13px;color:var(--tx2);line-height:1.5}
+  .cat-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 22px;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    border: 2px solid transparent;
+    position: relative;
+    transition: transform .15s, box-shadow .15s;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .cat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+  .cat-card .cat-emoji { font-size: 28px; }
+  .cat-card .cat-name { font-weight: 500; font-size: 15px; }
+  .cat-card .cat-count { font-size: 12px; color: var(--text-muted); }
+  .cat-card .cat-del {
+    position: absolute; top: 10px; right: 12px;
+    background: none; border: none; cursor: pointer;
+    font-size: 15px; opacity: 0;
+    transition: opacity .15s;
+    color: var(--text-muted);
+    line-height: 1;
+    padding: 2px 4px;
+  }
+  .cat-card:hover .cat-del { opacity: 1; }
+  .cat-card .cat-del:hover { color: #c00; }
 
-/* INTERVIEW */
-.qc{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:21px;margin-bottom:16px}
-.qn{font-size:10px;color:var(--ac);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
-.qt{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;margin-bottom:16px;line-height:1.4}
-.aa{position:relative}
-.aa textarea{padding-right:44px}
-.mb{position:absolute;right:9px;bottom:9px;width:33px;height:33px;border-radius:50%;background:var(--s1);border:1px solid var(--bd);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:.2s}
-.mb:hover{border-color:var(--ac)}
-.mb.rec{background:rgba(255,101,132,.2);border-color:var(--ac2);animation:mp 1s infinite}
-@keyframes mp{0%,100%{box-shadow:0 0 0 0 rgba(255,101,132,.4)}50%{box-shadow:0 0 0 7px rgba(255,101,132,0)}}
-.fb{border-radius:9px;padding:12px 15px;margin-top:9px;font-size:13px;line-height:1.6;display:none}
-.fb.show{display:block}
-.fb.good{background:rgba(67,233,123,.07);border:1px solid rgba(67,233,123,.2)}
-.fb.warn{background:rgba(255,200,0,.06);border:1px solid rgba(255,200,0,.18)}
-.fbt{font-weight:600;font-size:11px;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
-.fb.good .fbt{color:var(--ac3)}
-.fb.warn .fbt{color:#ffc800}
+  /* add card */
+  .add-cat-card {
+    background: none;
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px;
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 500;
+    transition: border-color .15s, color .15s;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 110px;
+  }
+  .add-cat-card:hover { border-color: #aaa; color: var(--text); }
 
-/* REPORT */
-.rb{font-family:'Syne',sans-serif;font-size:66px;font-weight:800;background:linear-gradient(135deg,var(--ac3),var(--ac));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
-.si,.ii{display:flex;align-items:flex-start;gap:9px;padding:11px;border-radius:9px;margin-bottom:8px;font-size:14px;line-height:1.5}
-.si{background:rgba(67,233,123,.07);border:1px solid rgba(67,233,123,.15)}
-.ii{background:rgba(255,200,0,.05);border:1px solid rgba(255,200,0,.15)}
+  /* ─── CATEGORY DETAIL VIEW ────────────── */
+  .detail-view { display: none; }
+  .detail-view.open { display: block; }
+  .home-view.hidden { display: none; }
 
-/* TRACKER */
-.trg{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:11px;margin-bottom:18px}
-.trc{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:17px}
-.trst{display:inline-block;padding:3px 9px;border-radius:100px;font-size:11px;font-weight:600;margin-bottom:9px}
-.stp{background:rgba(255,200,0,.14);color:#ffc800}
-.sti{background:rgba(108,99,255,.14);color:var(--ac)}
-.sto{background:rgba(67,233,123,.14);color:var(--ac3)}
-.str{background:rgba(255,101,132,.14);color:var(--ac2)}
-.trco{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:3px}
-.trpos{font-size:13px;color:var(--tx2);margin-bottom:6px}
+  .breadcrumb {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--text-muted);
+    margin-bottom: 24px; flex-wrap: wrap;
+  }
+  .breadcrumb span { cursor: pointer; }
+  .breadcrumb span:hover { color: var(--text); text-decoration: underline; }
+  .breadcrumb .sep { color: var(--border); }
+  .breadcrumb .current { color: var(--text); font-weight: 500; cursor: default; text-decoration: none !important; }
 
-/* LOAD */
-.ld{display:none;flex-direction:column;align-items:center;justify-content:center;padding:54px;gap:16px}
-.ld.show{display:flex}
-.sp{width:42px;height:42px;border:3px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.ldt{font-size:14px;color:var(--tx2)}
-.dots::after{content:'';animation:dots 1.5s infinite}
-@keyframes dots{0%{content:''}33%{content:'.'}66%{content:'..'}100%{content:'...'}}
+  .detail-header {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 32px;
+  }
+  .detail-header .big-emoji { font-size: 40px; }
+  .detail-header h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    font-weight: 400;
+  }
+  .detail-actions { display: flex; gap: 10px; margin-left: auto; }
 
-/* TOAST */
-#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(14px);padding:10px 20px;border-radius:100px;font-size:13px;font-weight:500;z-index:9999;opacity:0;transition:.28s;pointer-events:none;white-space:nowrap;font-family:'DM Sans',sans-serif}
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  /* notes list */
+  .notes-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
+  .note-card {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+    position: relative;
+    border-left: 4px solid var(--accent, #ddd);
+    animation: slideIn .2s ease;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .note-card .note-type-badge {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+  .note-card .note-text { font-size: 14px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+  .note-card .note-link { font-size: 14px; }
+  .note-card .note-link a { color: #333; word-break: break-all; }
+  .note-card .note-img { max-width: 100%; max-height: 220px; border-radius: 8px; display: block; margin-top: 8px; object-fit: cover; }
+  .note-card .note-del {
+    position: absolute; top: 12px; right: 14px;
+    background: none; border: none; cursor: pointer;
+    font-size: 14px; opacity: 0;
+    transition: opacity .15s;
+    color: var(--text-muted);
+  }
+  .note-card:hover .note-del { opacity: 1; }
+  .note-card .note-del:hover { color: #c00; }
 
-.anote{background:rgba(255,200,0,.06);border:1px solid rgba(255,200,0,.22);border-radius:10px;padding:11px 15px;font-size:13px;color:#ffc800;margin-bottom:18px}
+  /* sub cat chips */
+  .subcat-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
+  .subcat-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    border: 2px solid transparent;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    transition: transform .13s, box-shadow .13s;
+  }
+  .subcat-chip:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
 
-@media(max-width:600px){.hdr{padding:13px 14px}.hsteps{display:none}.wrap{padding:26px 13px}.fg2{grid-template-columns:1fr}.ig{grid-template-columns:1fr}.cvbox{padding:22px}}
+  /* empty state */
+  .empty { color: var(--text-muted); font-size: 14px; padding: 24px 0; }
+
+  /* image upload area */
+  .upload-area {
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 13px;
+    transition: border-color .15s;
+  }
+  .upload-area:hover { border-color: #aaa; }
+  #img-preview { max-width: 100%; max-height: 160px; border-radius: 8px; display: none; margin-top: 10px; }
+
+  @media(max-width: 600px){
+    header, .container { padding-left: 20px; padding-right: 20px; }
+    header { padding-top: 28px; }
+    header h1 { font-size: 26px; }
+    .cat-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+    .modal { padding: 24px; }
+  }
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 
-<div id="toast"></div>
-
-<header class="hdr">
-  <div class="logo">Kariyer<em>AI</em></div>
-  <div class="hsteps">
-    <button class="sdot a" onclick="gst(0)"></button>
-    <button class="sdot" onclick="gst(1)"></button>
-    <button class="sdot" onclick="gst(2)"></button>
-    <button class="sdot" onclick="gst(3)"></button>
-    <button class="sdot" onclick="gst(4)"></button>
-    <button class="sdot" onclick="gst(5)"></button>
-    <button class="sdot" onclick="gst(6)"></button>
+<!-- ─── HOME VIEW ──────────────────────────── -->
+<div class="home-view" id="home-view">
+  <header>
+    <h1>Notlarım <span>·</span></h1>
+    <button class="btn btn-dark" onclick="openCatModal(null)">+ Kategori</button>
+  </header>
+  <div class="container">
+    <div class="cat-grid" id="root-cat-grid"></div>
   </div>
-  <div class="hright">
-    <div class="lbox">
-      <button class="lb on" onclick="setlang('tr')">TR</button>
-      <button class="lb" onclick="setlang('en')">EN</button>
-    </div>
-    <button class="btn bg sm" onclick="go('landing')" id="lhome">Ana Sayfa</button>
-    <button class="btn bs sm" onclick="go('tracker')">📋 <span id="ltrack">Başvurularım</span></button>
-  </div>
-</header>
+</div>
 
-<!-- LANDING -->
-<div id="pg-landing" class="pg on">
-  <div class="hero">
-    <div class="badge"><span class="dl"></span><span id="lbadge">Yapay Zeka Destekli Kariyer Rehberi</span></div>
-    <h1 id="lh1">İş Bul,<br><span class="hl">Kariyer Kur.</span></h1>
-    <p id="lsub">Profilini oluştur, ATS uyumlu CV al, iş ilanlarını keşfet ve mülakata hazırlan. Hepsi tek platformda.</p>
-    <div class="hacts">
-      <button class="btn bp" onclick="go('profile')" id="lstart">Hemen Başla →</button>
-      <button class="btn bs" onclick="go('tracker')"><span id="ltrackbtn">Başvurularımı Gör</span></button>
+<!-- ─── DETAIL VIEW ────────────────────────── -->
+<div class="detail-view" id="detail-view">
+  <div class="container" style="padding-top:40px">
+    <div class="breadcrumb" id="breadcrumb"></div>
+    <div class="detail-header">
+      <span class="big-emoji" id="detail-emoji"></span>
+      <h2 id="detail-title"></h2>
+      <div class="detail-actions">
+        <button class="btn btn-ghost btn-sm" onclick="openCatModal(currentCatId)">+ Alt Kategori</button>
+        <button class="btn btn-dark btn-sm" onclick="openNoteModal()">+ Not</button>
+      </div>
     </div>
-    <div class="hcards">
-      <div class="hcard" onclick="go('profile')"><div class="hcn">Adım 01</div><h3 id="ls1">Profil Oluştur</h3><p id="ls1d">CV yükle veya bilgilerini gir.</p></div>
-      <div class="hcard" onclick="go('cv')"><div class="hcn">Adım 02</div><h3 id="ls2">ATS CV Al</h3><p id="ls2d">ATS uyumlu CV saniyeler içinde.</p></div>
-      <div class="hcard" onclick="go('jobs')"><div class="hcn">Adım 03</div><h3 id="ls3">İlanları Keşfet</h3><p id="ls3d">Profiline uygun ilanları bul.</p></div>
-      <div class="hcard" onclick="go('interview')"><div class="hcn">Adım 04</div><h3 id="ls4">Mülakata Hazırlan</h3><p id="ls4d">AI mülakatçıyla pratik yap.</p></div>
+
+    <!-- sub categories -->
+    <div class="subcat-grid" id="subcat-grid"></div>
+
+    <!-- notes -->
+    <div class="notes-list" id="notes-list"></div>
+    <p class="empty" id="empty-msg" style="display:none">Henüz not yok. Yukarıdan ekleyebilirsin.</p>
+  </div>
+</div>
+
+<!-- ─── MODAL: CATEGORY ────────────────────── -->
+<div class="overlay" id="cat-overlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('cat-overlay')">✕</button>
+    <h2 id="cat-modal-title">Kategori Ekle</h2>
+    <div class="field">
+      <label>İsim</label>
+      <input type="text" id="cat-name-input" placeholder="Kategori adı…">
+    </div>
+    <div class="field">
+      <label>Emoji</label>
+      <div class="emoji-grid" id="emoji-grid"></div>
+    </div>
+    <div class="field">
+      <label>Renk</label>
+      <div class="color-grid" id="color-grid"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('cat-overlay')">İptal</button>
+      <button class="btn btn-dark" onclick="saveCategory()">Kaydet</button>
     </div>
   </div>
 </div>
 
-<!-- PROFILE -->
-<div id="pg-profile" class="pg">
-  <div class="wrap">
-    <div class="prog"><div class="pf" style="width:14%"></div></div>
-    <span class="stag">Adım 1 / 7</span>
-    <div class="sh"><h2>Profilini Oluştur</h2><p>Bilgilerini gir, sana özel kariyer yolu çizelim.</p></div>
-    <div class="anote">⚡ Eski CV'ni yükle — yapay zeka formu otomatik doldursun!</div>
-    <div class="upz" id="upz" onclick="document.getElementById('cvf').click()"
-         ondragover="event.preventDefault();this.style.borderColor='var(--ac)'"
-         ondragleave="this.style.borderColor=''"
-         ondrop="dropf(event)">
-      <div style="font-size:34px">📄</div>
-      <h3>CV Yükle (Opsiyonel)</h3>
-      <p>PDF, Word veya görsel — veya aşağıyı manuel doldur</p>
-      <input type="file" id="cvf" style="display:none" accept=".pdf,.doc,.docx,.jpg,.png" onchange="upcv(this)">
+<!-- ─── MODAL: NOTE ────────────────────────── -->
+<div class="overlay" id="note-overlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('note-overlay')">✕</button>
+    <h2>Not Ekle</h2>
+    <div class="type-tabs">
+      <button class="type-tab active" data-type="text" onclick="switchNoteType('text')">✏️ Metin</button>
+      <button class="type-tab" data-type="link" onclick="switchNoteType('link')">🔗 Bağlantı</button>
+      <button class="type-tab" data-type="image" onclick="switchNoteType('image')">🖼 Fotoğraf</button>
     </div>
-    <div class="div"></div>
-    <div class="fsec">
-      <span class="ftitle">👤 Kişisel Bilgiler</span>
-      <div class="fg2">
-        <div class="fg"><label>Ad Soyad *</label><input id="fn" type="text" placeholder="Ad Soyad"></div>
-        <div class="fg"><label>E-posta *</label><input id="fe" type="email" placeholder="email@ornek.com"></div>
-        <div class="fg"><label>Telefon</label><input id="fph" type="tel" placeholder="+90 5XX XXX XX XX"></div>
-        <div class="fg"><label>Şehir</label><input id="fci" type="text" placeholder="İstanbul"></div>
-        <div class="fg"><label>LinkedIn</label><input id="fli" type="text" placeholder="linkedin.com/in/..."></div>
-        <div class="fg"><label>Web Sitesi / Portfolio</label><input id="fweb" type="text" placeholder="https://siteadınız.com"></div>
-        <div class="fg"><label>Askerlik Durumu</label>
-          <select id="fmi"><option value="">Seçiniz</option><option value="yapildi">Yapıldı</option><option value="muaf">Muaf</option><option value="tecilli">Tecilli</option><option value="yapilmadi">Yapılmadı</option><option value="na">Uygulanmaz</option></select>
-        </div>
-        <div class="fg"><label>Ehliyet</label>
-          <select id="feh"><option value="yok">Yok</option><option value="B">B Sınıfı</option><option value="A">A Sınıfı</option><option value="D">D Sınıfı</option><option value="E">E Sınıfı</option></select>
-        </div>
-        <div class="fg"><label>Çalışma Tercihi</label>
-          <select id="fwt"><option value="fulltime">Tam Zamanlı</option><option value="parttime">Yarı Zamanlı</option><option value="both">Her İkisi</option></select>
-        </div>
+    <!-- text -->
+    <div id="note-text-area" class="field">
+      <label>Not</label>
+      <textarea id="note-text-input" placeholder="Bir şeyler yaz…"></textarea>
+    </div>
+    <!-- link -->
+    <div id="note-link-area" class="field" style="display:none">
+      <label>Bağlantı</label>
+      <input type="text" id="note-link-input" placeholder="https://…">
+      <div class="field" style="margin-top:10px">
+        <label>Açıklama (isteğe bağlı)</label>
+        <input type="text" id="note-link-desc" placeholder="Bağlantı açıklaması">
       </div>
     </div>
-    <div class="fsec">
-      <span class="ftitle">🎓 Eğitim</span>
-      <div class="fg2">
-        <div class="fg"><label>Okul / Üniversite</label><input id="fsc" type="text" placeholder="Üniversite Adı"></div>
-        <div class="fg"><label>Bölüm</label><input id="fma" type="text" placeholder="Bölüm Adı"></div>
-        <div class="fg"><label>Mezuniyet Yılı</label>
-          <select id="fgy">
-            <option value="">Seçiniz</option>
-            <option value="Devam Ediyor">Devam Ediyor</option>
-            <option value="2026">2026</option><option value="2025">2025</option><option value="2024">2024</option>
-            <option value="2023">2023</option><option value="2022">2022</option><option value="2021">2021</option>
-            <option value="2020">2020</option><option value="2019">2019</option><option value="2018">2018</option>
-            <option value="2017">2017</option><option value="2016">2016</option><option value="2015">2015</option>
-            <option value="2014">2014</option><option value="2013">2013</option><option value="2012">2012</option>
-            <option value="2010">2010</option><option value="2008">2008</option><option value="2005">2005</option>
-          </select>
-        </div>
-        <div class="fg"><label>Derece</label>
-          <select id="fdg"><option>Lisans</option><option>Ön Lisans</option><option>Yüksek Lisans</option><option>Lise</option><option>Doktora</option></select>
-        </div>
+    <!-- image -->
+    <div id="note-image-area" class="field" style="display:none">
+      <label>Fotoğraf</label>
+      <div class="upload-area" onclick="document.getElementById('img-file').click()">
+        📁 Dosya seç veya buraya tıkla
+        <input type="file" id="img-file" accept="image/*" style="display:none" onchange="previewImage(event)">
+        <img id="img-preview" alt="Önizleme">
       </div>
     </div>
-    <div class="fsec">
-      <span class="ftitle">💼 İş Deneyimi</span>
-      <div class="fg2">
-        <div class="fg"><label>Son Şirket</label><input id="fc1" type="text" placeholder="Şirket Adı"></div>
-        <div class="fg"><label>Pozisyon</label><input id="fp1" type="text" placeholder="Unvanınız"></div>
-        <div class="fg"><label>Başlangıç</label><input id="fs1" type="month"></div>
-        <div class="fg"><label>Bitiş (devam ediyorsa boş)</label><input id="fe1" type="month"></div>
-        <div class="fg full"><label>Görevler ve Başarılar</label>
-          <textarea id="fd1" placeholder="Yaptığınız işler ve başarılarınız. Sayısal veri ekleyin: '15 kişilik ekip yönettim, %20 verimlilik artışı'"></textarea>
-        </div>
-      </div>
-    </div>
-    <div class="fsec">
-      <span class="ftitle">⚡ Yetenekler & Diller</span>
-      <div class="fg2">
-        <div class="fg full"><label>Yetenekler (virgülle ayır)</label><input id="fsk" type="text" placeholder="Excel, Müşteri ilişkileri, Takım liderliği, Problem çözme"></div>
-        <div class="fg"><label>İngilizce Seviyesi</label>
-          <select id="feng"><option value="">Yok</option><option value="A1">A1</option><option value="A2">A2</option><option value="B1">B1</option><option value="B2">B2</option><option value="C1">C1</option><option value="C2">C2</option></select>
-        </div>
-        <div class="fg"><label>Diğer Dil</label><input id="fl2" type="text" placeholder="Almanca B1, Arapça C1"></div>
-        <div class="fg full"><label>Sertifikalar</label><input id="fce" type="text" placeholder="Sertifika 1, Sertifika 2"></div>
-      </div>
-    </div>
-    <div class="fsec">
-      <span class="ftitle">🎯 Hedef</span>
-      <div class="fg2">
-        <div class="fg full"><label>Hangi pozisyona başvurmak istiyorsunuz? *</label>
-          <textarea id="fta" placeholder="Örnek: Yazılım sektöründe frontend developer olmak istiyorum. React ve TypeScript biliyorum." style="min-height:72px"></textarea>
-        </div>
-        <div class="fg full"><label>Kısa Özet / Profil</label>
-          <textarea id="fsu" placeholder="Kendinizi kısaca tanıtın..."></textarea>
-        </div>
-      </div>
-    </div>
-    <div class="fsec">
-      <span class="ftitle">➕ Ekstra Bölüm (İsteğe Bağlı)</span>
-      <div style="font-size:13px;color:var(--tx2);margin-bottom:13px">Projeler, gönüllülük, yayınlar, ödüller gibi özel bir bölüm ekleyin.</div>
-      <div id="exsecs"></div>
-      <button class="btn bs sm" onclick="addExSec()">+ Bölüm Ekle</button>
-    </div>
-    <div class="nav">
-      <button class="btn bg" onclick="go('landing')">← Geri</button>
-      <button class="btn bp" onclick="makecv()">CV Oluştur →</button>
-    </div>
-  </div>
-</div>
-
-<!-- CV -->
-<div id="pg-cv" class="pg">
-  <div class="wrap">
-    <div class="prog"><div class="pf" style="width:28%"></div></div>
-    <div class="ld show" id="cvld"><div class="sp"></div><div class="ldt">CV hazırlanıyor<span class="dots"></span></div></div>
-    <div id="cvcon" style="display:none">
-      <span class="stag">Adım 2 / 7</span>
-      <div class="sh"><h2>CV'n Hazır! 🎉</h2><p>ATS uyumlu CV'n oluşturuldu.</p></div>
-      <div class="atsc">
-        <div class="atsrow">
-          <div class="atsrng">
-            <svg width="106" height="106" viewBox="0 0 106 106">
-              <circle cx="53" cy="53" r="45" fill="none" stroke="var(--bd)" stroke-width="8"/>
-              <circle id="atscirc" cx="53" cy="53" r="45" fill="none" stroke-width="8" stroke-linecap="round" stroke-dasharray="283" stroke-dashoffset="283" style="transition:stroke-dashoffset 1.4s ease"/>
-            </svg>
-            <div class="atsnum"><div class="atsn" id="atsnt">--</div><div class="atsl">ATS</div></div>
-          </div>
-          <div class="atsiss">
-            <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:3px">ATS Uyumluluk Skoru</div>
-            <div style="font-size:13px;color:var(--tx2);margin-bottom:10px" id="atsdsc">Analiz ediliyor...</div>
-            <div id="atslst"></div>
-          </div>
-        </div>
-      </div>
-      <div id="cvprev" class="cvbox"></div>
-
-      <!-- CV ÖZELLEŞTİRME -->
-      <div class="card" style="margin-top:18px;margin-bottom:13px">
-        <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:14px">🎨 CV Özelleştir</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:13px">
-          <div class="fg">
-            <label>Renk Teması</label>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
-              <button onclick="setCVColor('#6c63ff')" style="width:28px;height:28px;border-radius:50%;background:#6c63ff;border:3px solid #fff;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.3)" title="Mor"></button>
-              <button onclick="setCVColor('#0ea5e9')" style="width:28px;height:28px;border-radius:50%;background:#0ea5e9;border:2px solid transparent;cursor:pointer" title="Mavi"></button>
-              <button onclick="setCVColor('#10b981')" style="width:28px;height:28px;border-radius:50%;background:#10b981;border:2px solid transparent;cursor:pointer" title="Yeşil"></button>
-              <button onclick="setCVColor('#f59e0b')" style="width:28px;height:28px;border-radius:50%;background:#f59e0b;border:2px solid transparent;cursor:pointer" title="Sarı"></button>
-              <button onclick="setCVColor('#ef4444')" style="width:28px;height:28px;border-radius:50%;background:#ef4444;border:2px solid transparent;cursor:pointer" title="Kırmızı"></button>
-              <button onclick="setCVColor('#1a1a2e')" style="width:28px;height:28px;border-radius:50%;background:#1a1a2e;border:2px solid transparent;cursor:pointer" title="Siyah"></button>
-            </div>
-          </div>
-          <div class="fg">
-            <label>Font</label>
-            <select onchange="setCVFont(this.value)" style="margin-top:4px">
-              <option value="'DM Sans',sans-serif">DM Sans (Varsayılan)</option>
-              <option value="Georgia,serif">Georgia (Klasik)</option>
-              <option value="'Courier New',monospace">Courier (Teknik)</option>
-              <option value="Arial,sans-serif">Arial (Sade)</option>
-            </select>
-          </div>
-          <div class="fg">
-            <label>Düzen</label>
-            <select onchange="setCVLayout(this.value)" style="margin-top:4px">
-              <option value="normal">Normal Kenar Boşluğu</option>
-              <option value="compact">Kompakt</option>
-              <option value="spacious">Geniş</option>
-            </select>
-          </div>
-          <div class="fg">
-            <label>Başlık Boyutu</label>
-            <select onchange="setCVNameSize(this.value)" style="margin-top:4px">
-              <option value="25px">Normal</option>
-              <option value="20px">Küçük</option>
-              <option value="30px">Büyük</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      <div class="nav">
-        <button class="btn bg" onclick="go('profile')">← Düzenle</button>
-        <div style="display:flex;gap:9px">
-          <button class="btn bs" onclick="downloadPDF()">⬇️ PDF İndir</button>
-          <button class="btn bp" onclick="go('categories')">Devam Et →</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- CATEGORIES -->
-<div id="pg-categories" class="pg">
-  <div class="wrap">
-    <div class="prog"><div class="pf" style="width:42%"></div></div>
-    <span class="stag">Adım 3 / 7</span>
-    <div class="sh"><h2>İş Kategorileri</h2><p>Hangi alanda iş arıyorsunuz?</p></div>
-    <div class="card" style="margin-bottom:16px">
-      <label style="display:block;margin-bottom:8px">Hedef iş kategorinizi yazın</label>
-      <textarea id="catin" placeholder="Örnek: Yazılım sektöründe frontend developer, React biliyorum..." style="margin-bottom:13px"></textarea>
-      <button class="btn bp sm" onclick="analcat()">Analiz Et ✨</button>
-    </div>
-    <div id="catsg" style="display:none">
-      <div style="font-family:'Syne',sans-serif;font-size:11px;font-weight:700;margin-bottom:9px;color:var(--tx2);letter-spacing:2px">ÖNERİLEN KATEGORİLER</div>
-      <div class="tg" id="cattgs"></div>
-    </div>
-    <div class="nav">
-      <button class="btn bg" onclick="go('cv')">← Geri</button>
-      <button class="btn bp" onclick="go('jobs')">İlanları Gör →</button>
-    </div>
-  </div>
-</div>
-
-<!-- JOBS -->
-<div id="pg-jobs" class="pg">
-  <div class="wrap">
-    <div class="prog"><div class="pf" style="width:57%"></div></div>
-    <span class="stag">Adım 4 / 7</span>
-    <div class="sh"><h2>İş İlanları</h2><p>Profiline göre eşleştirilen ilanlar.</p></div>
-    <div class="tabs">
-      <button class="tab on" onclick="stab(this,'tm')">🎯 Eşleşen İlanlar</button>
-      <button class="tab" onclick="stab(this,'ta')">🏢 Nereye Başvurabilirim</button>
-      <button class="tab" onclick="stab(this,'tw')">🔍 Neden Elendim?</button>
-    </div>
-    <div id="tm" class="tc on">
-      <div class="ld show" id="jbld"><div class="sp"></div><div class="ldt">İlanlar aranıyor<span class="dots"></span></div></div>
-      <div id="jbls" style="display:none"></div>
-    </div>
-    <div id="ta" class="tc">
-      <div class="card"><div id="aplpl" style="font-size:14px;color:var(--tx2);line-height:1.9">Profil bilgilerinize göre analiz ediliyor...</div></div>
-    </div>
-    <div id="tw" class="tc">
-      <div class="card">
-        <h3 style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:7px">Neden Eleniyorsunuz?</h3>
-        <p style="color:var(--tx2);font-size:13px;margin-bottom:14px">Başvurduğunuz ilanı yapıştırın, CV'nizle karşılaştıralım.</p>
-        <textarea id="wyin" placeholder="İş ilanı metnini buraya yapıştırın..." style="margin-bottom:11px"></textarea>
-        <button class="btn bp sm" onclick="anwhy()">Analiz Et</button>
-        <div id="wyre" style="margin-top:13px"></div>
-      </div>
-    </div>
-    <div class="nav">
-      <button class="btn bg" onclick="go('categories')">← Geri</button>
-      <button class="btn bp" onclick="go('company')">Şirketi Araştır →</button>
-    </div>
-  </div>
-</div>
-
-<!-- COMPANY -->
-<div id="pg-company" class="pg">
-  <div class="wrap">
-    <div class="prog"><div class="pf" style="width:71%"></div></div>
-    <span class="stag">Adım 5 / 7</span>
-    <div class="sh"><h2>Şirket Araştırması</h2><p>Başvuracağınız şirketi iyice tanıyın.</p></div>
-    <div class="card" style="margin-bottom:16px">
-      <div style="display:flex;gap:10px;align-items:flex-end">
-        <div class="fg" style="flex:1"><label>Şirket Adı</label><input id="cose" type="text" placeholder="Araştırmak istediğiniz şirket..."></div>
-        <button class="btn bp" onclick="resco()">Araştır 🔍</button>
-      </div>
-    </div>
-    <div class="ld" id="cold"><div class="sp"></div><div class="ldt">Şirket araştırılıyor<span class="dots"></span></div><div style="font-size:12px;color:var(--tx3);margin-top:3px">Ekşi, Glassdoor, LinkedIn taranıyor</div></div>
-    <div id="core" style="display:none">
-      <div style="display:flex;align-items:center;gap:16px;margin-bottom:22px">
-        <div class="col" id="coem">🏢</div>
-        <div>
-          <div style="font-family:'Syne',sans-serif;font-size:21px;font-weight:800" id="conm">-</div>
-          <div style="font-size:13px;color:var(--tx2);margin-top:2px" id="cose2">-</div>
-          <div class="cls" id="cols"></div>
-        </div>
-      </div>
-      <div class="ig" id="coig"></div>
-      <div class="card" style="margin-bottom:13px"><div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:9px">📋 Aradıkları Profil</div><div id="copr" style="font-size:14px;color:var(--tx2);line-height:1.7"></div></div>
-      <div class="card" style="margin-bottom:13px"><div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:9px">💬 Çalışan Yorumları</div><div id="corv"></div></div>
-      <div class="card" style="margin-bottom:18px"><div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:9px">✅ Sen Bu Şirkete Uygun musun?</div><div id="comt" style="font-size:14px;line-height:1.7"></div></div>
-    </div>
-    <div class="nav">
-      <button class="btn bg" onclick="go('jobs')">← Geri</button>
-      <button class="btn bp" onclick="go('apply')">Başvuruya Hazırlan →</button>
-    </div>
-  </div>
-</div>
-
-<!-- APPLY -->
-<div id="pg-apply" class="pg">
-  <div class="wrap">
-    <div class="prog"><div class="pf" style="width:85%"></div></div>
-    <span class="stag">Adım 6 / 7</span>
-    <div class="sh"><h2>Başvuru Zamanı! 🚀</h2><p>Şirkete nasıl başvuracağınızı görelim.</p></div>
-    <div class="card" style="margin-bottom:16px;border-color:rgba(108,99,255,.35)">
-      <div style="display:flex;align-items:center;gap:13px">
-        <div style="font-size:28px">🏢</div>
-        <div style="flex:1">
-          <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700" id="apco">Şirket Seçilmedi</div>
-          <div style="font-size:13px;color:var(--tx2)" id="appos">Önce bir iş ilanı seçin</div>
-        </div>
-        <div class="ms" id="apm">--<span>uyum</span></div>
-      </div>
-    </div>
-    <div class="card" style="margin-bottom:13px">
-      <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:13px">🔗 Başvuru Kanalları</div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--s2);border-radius:10px">
-          <div><div style="font-size:14px;font-weight:500">🌐 Kariyer Sayfası</div><div style="font-size:12px;color:var(--tx3);margin-top:2px">Şirket seçildikten sonra görünür</div></div>
-          <button class="btn bp sm" onclick="toast('Şirket araştırmasından sonra aktif olur','warn')">Başvur →</button>
-        </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--s2);border-radius:10px">
-          <div><div style="font-size:14px;font-weight:500">💼 LinkedIn</div><div style="font-size:12px;color:var(--tx3);margin-top:2px">İlanı LinkedIn'de ara</div></div>
-          <button class="btn bs sm" onclick="toast('LinkedIn üzerinden arayın','info')">Görüntüle</button>
-        </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--s2);border-radius:10px">
-          <div><div style="font-size:14px;font-weight:500">📧 Kapak Mektubu</div><div style="font-size:12px;color:var(--tx3);margin-top:2px">AI ile otomatik oluştur</div></div>
-          <button class="btn bs sm" onclick="mkcover()">Oluştur</button>
-        </div>
-      </div>
-    </div>
-    <div id="covsec" style="display:none">
-      <div class="card" style="margin-bottom:13px">
-        <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:9px">📝 Kapak Mektubu</div>
-        <textarea id="covtxt" style="min-height:200px"></textarea>
-        <div style="display:flex;gap:8px;margin-top:9px">
-          <button class="btn bs sm">⬇️ İndir</button>
-          <button class="btn bp sm" onclick="addtotr()">✅ Başvurdu Olarak İşaretle</button>
-        </div>
-      </div>
-    </div>
-    <div class="nav">
-      <button class="btn bg" onclick="go('company')">← Geri</button>
-      <button class="btn bp" onclick="go('interview')">Mülakata Hazırlan →</button>
-    </div>
-  </div>
-</div>
-
-<!-- INTERVIEW -->
-<div id="pg-interview" class="pg">
-  <div class="wrap">
-    <div class="prog"><div class="pf" style="width:100%"></div></div>
-    <span class="stag">Adım 7 / 7</span>
-    <div class="sh"><h2>Mülakat Simülasyonu 🎤</h2><p>Yapay zeka mülakatçıyla pratik yap.</p></div>
-    <div id="ivs">
-      <div class="card" style="margin-bottom:16px">
-        <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:13px">Mülakat Türü</div>
-        <div class="tg" id="ivtp">
-          <button class="tb sel" onclick="sivt(this,'general')">Genel</button>
-          <button class="tb" onclick="sivt(this,'behavioral')">Davranışsal</button>
-          <button class="tb" onclick="sivt(this,'technical')">Teknik</button>
-          <button class="tb" onclick="sivt(this,'stress')">Stres</button>
-        </div>
-      </div>
-      <div style="text-align:center"><button class="btn bp" onclick="startiv()">Mülakatı Başlat 🎯</button></div>
-    </div>
-    <div id="ivse" style="display:none">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
-        <div style="font-size:13px;color:var(--tx2)">Soru <span id="curq">1</span>/<span id="totq">5</span></div>
-        <button class="btn bg sm" onclick="endiv()">Bitir</button>
-      </div>
-      <div id="qcon"></div>
-      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
-        <button class="btn bs" id="pvbtn" onclick="pvq()" style="display:none">← Önceki</button>
-        <button class="btn bp" id="nxbtn" onclick="nxq()">Cevapla & Devam →</button>
-      </div>
-    </div>
-    <div id="ivrp" style="display:none">
-      <div style="text-align:center;margin-bottom:26px">
-        <div class="rb" id="ivsc">--</div>
-        <div style="font-size:15px;color:var(--tx2);margin-top:7px" id="ivlb">Mülakat Tamamlandı</div>
-      </div>
-      <div class="card" style="margin-bottom:13px"><div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:11px">💪 Güçlü Yanların</div><div id="strl"></div></div>
-      <div class="card" style="margin-bottom:13px"><div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:11px">📈 Geliştirilecek Alanlar</div><div id="impl"></div></div>
-      <div style="display:flex;gap:9px;justify-content:center;margin-top:18px">
-        <button class="btn bs" onclick="rstiv()">🔄 Tekrar Dene</button>
-        <button class="btn bp" onclick="go('tracker')">📋 Başvurularımı Gör →</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- TRACKER -->
-<div id="pg-tracker" class="pg">
-  <div class="wrap">
-    <span class="stag">Başvuru Takibi</span>
-    <div class="sh"><h2>Başvurularım</h2><p>Tüm başvurularını tek yerden takip et.</p></div>
-    <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap">
-      <select id="trs" style="width:auto;flex:none"><option value="pending">Beklemede</option><option value="interview">Mülakat</option><option value="offer">Teklif</option><option value="rejected">Reddedildi</option></select>
-      <input type="text" id="trc" placeholder="Şirket adı" style="flex:1;min-width:110px">
-      <input type="text" id="trp" placeholder="Pozisyon" style="flex:1;min-width:110px">
-      <button class="btn bp sm" onclick="addtr()">+ Ekle</button>
-    </div>
-    <div class="trg" id="trg"></div>
-    <div id="tre" style="text-align:center;padding:38px;display:none">
-      <div style="font-size:36px;margin-bottom:9px">📭</div>
-      <div style="color:var(--tx2)">Henüz başvuru yok.</div>
-      <button class="btn bp" style="margin-top:16px" onclick="go('jobs')">İlanları Keşfet →</button>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('note-overlay')">İptal</button>
+      <button class="btn btn-dark" onclick="saveNote()">Ekle</button>
     </div>
   </div>
 </div>
 
 <script>
-// STATE
-const st={profile:{},sector:'genel',job:null,ivtype:'general',ivqs:[],ivas:[],ivix:0,tracks:[]};
+// ─── DATA ──────────────────────────────────────────────
+let data = JSON.parse(localStorage.getItem('notdefteri') || '{"cats":{},"notes":{}}');
+// cats: { id: { id, name, emoji, color, parentId } }
+// notes: { id: { id, catId, type, content, desc? } }
 
-// NAVIGATION
-function go(p){
-  document.querySelectorAll('.pg').forEach(x=>x.classList.remove('on'));
-  document.getElementById('pg-'+p).classList.add('on');
-  window.scrollTo({top:0,behavior:'smooth'});
-  udots(p);
-  if(p==='jobs')loadjobs();
-}
-function gst(i){const ps=['profile','cv','categories','jobs','company','apply','interview'];if(ps[i])go(ps[i]);}
-function udots(p){
-  const ps=['profile','cv','categories','jobs','company','apply','interview'];
-  const i=ps.indexOf(p);
-  document.querySelectorAll('.sdot').forEach((d,j)=>{d.classList.remove('a','d');if(j===i)d.classList.add('a');else if(j<i)d.classList.add('d');});
-}
-function stab(b,t){
-  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
-  document.querySelectorAll('.tc').forEach(x=>x.classList.remove('on'));
-  b.classList.add('on');
-  document.getElementById(t).classList.add('on');
-}
+function save() { localStorage.setItem('notdefteri', JSON.stringify(data)); }
 
-// TOAST
-function toast(m,tp='info'){
-  const el=document.getElementById('toast');
-  el.textContent=m;
-  el.style.background=tp==='error'?'rgba(255,101,132,.95)':tp==='success'?'rgba(67,233,123,.95)':tp==='warn'?'rgba(255,200,0,.92)':'rgba(108,99,255,.95)';
-  el.style.color=tp==='success'||tp==='warn'?'#0a0a0f':'#fff';
-  el.classList.add('show');
-  clearTimeout(el._t);
-  el._t=setTimeout(()=>el.classList.remove('show'),3000);
-}
+// ─── ROUTING ───────────────────────────────────────────
+let currentCatId = null; // null = root
+let breadcrumbTrail = []; // [{id, name, emoji}]
 
-// LANG
-const TT={
-  tr:{home:'Ana Sayfa',badge:'Yapay Zeka Destekli Kariyer Rehberi',h1:'İş Bul,<br><span class="hl">Kariyer Kur.</span>',sub:'Profilini oluştur, ATS uyumlu CV al, iş ilanlarını keşfet ve mülakata hazırlan. Hepsi tek platformda.',start:'Hemen Başla →',track:'Başvurularım',trackbtn:'Başvurularımı Gör',s1:'Profil Oluştur',s1d:'CV yükle veya bilgilerini gir.',s2:'ATS CV Al',s2d:'ATS uyumlu CV saniyeler içinde.',s3:'İlanları Keşfet',s3d:'Profiline uygun ilanları bul.',s4:'Mülakata Hazırlan',s4d:'AI mülakatçıyla pratik yap.'},
-  en:{home:'Home',badge:'AI-Powered Career Guide',h1:'Find a Job,<br><span class="hl">Build a Career.</span>',sub:"Build your profile, get an ATS-ready CV, explore jobs, and prep for interviews. All in one place.",start:'Get Started →',track:'My Applications',trackbtn:'View Applications',s1:'Create Profile',s1d:'Upload CV or fill details.',s2:'Get ATS CV',s2d:'Professional CV in seconds.',s3:'Explore Jobs',s3d:'Find jobs matched to your profile.',s4:'Interview Prep',s4d:'Practice with AI interviewer.'}
-};
-let lang='tr';
-function setlang(l){
-  lang=l;
-  document.querySelectorAll('.lb').forEach(b=>b.classList.toggle('on',b.textContent.trim().toLowerCase()===l));
-  const t=TT[l];
-  const s=(id,v)=>{const e=document.getElementById(id);if(e)e.innerHTML=v;};
-  s('lhome',t.home);s('lbadge',t.badge);s('lh1',t.h1);s('lsub',t.sub);
-  s('lstart',t.start);s('ltrack',t.track);s('ltrackbtn',t.trackbtn);
-  s('ls1',t.s1);s('ls1d',t.s1d);s('ls2',t.s2);s('ls2d',t.s2d);
-  s('ls3',t.s3);s('ls3d',t.s3d);s('ls4',t.s4);s('ls4d',t.s4d);
-  toast(l==='tr'?'🇹🇷 Türkçe seçildi':'🇬🇧 English selected','info');
-}
-
-// COLLECT
-function col(){
-  return{
-    name:document.getElementById('fn').value.trim(),
-    email:document.getElementById('fe').value.trim(),
-    phone:document.getElementById('fph').value.trim(),
-    city:document.getElementById('fci').value.trim(),
-    linkedin:document.getElementById('fli').value.trim(),
-    website:document.getElementById('fweb')?.value.trim()||'',
-    school:document.getElementById('fsc').value.trim(),
-    major:document.getElementById('fma').value.trim(),
-    gradyear:document.getElementById('fgy').value.trim(),
-    degree:document.getElementById('fdg').value,
-    co1:document.getElementById('fc1').value.trim(),
-    pos1:document.getElementById('fp1').value.trim(),
-    start1:document.getElementById('fs1').value,
-    end1:document.getElementById('fe1').value,
-    duties1:document.getElementById('fd1').value.trim(),
-    skills:document.getElementById('fsk').value.trim(),
-    eng:document.getElementById('feng').value,
-    lang2:document.getElementById('fl2').value.trim(),
-    certs:document.getElementById('fce').value.trim(),
-    target:document.getElementById('fta').value.trim(),
-    summary:document.getElementById('fsu').value.trim(),
-    exSecs:getExSecs()
-  };
-}
-
-// ATS SCORE — REAL DATA BASED
-function calcats(p){
-  let s=0;const iss=[],gd=[];
-  if(p.name){s+=10;gd.push('Ad soyad mevcut');}else iss.push('Ad soyad eksik');
-  if(p.email){s+=10;gd.push('E-posta mevcut');}else iss.push('E-posta eksik');
-  if(p.phone)s+=5;
-  if(p.city)s+=5;
-  if(p.school){s+=8;}else iss.push('Eğitim bilgisi eksik');
-  if(p.major)s+=4;
-  if(p.co1&&p.pos1){s+=15;gd.push('İş deneyimi eklendi');if(p.duties1&&p.duties1.length>60){s+=5;}else iss.push('Görev açıklaması çok kısa');}
-  else iss.push('İş deneyimi eklenmemiş');
-  if(p.skills){const c=p.skills.split(',').filter(x=>x.trim()).length;if(c>=4){s+=15;gd.push(c+' yetenek listelendi');}else if(c>=1){s+=8;iss.push('En az 4-5 yetenek önerilir');}else iss.push('Yetenekler boş');}
-  else iss.push('Yetenekler bölümü boş');
-  if(p.target&&p.target.length>15){s+=10;gd.push('Hedef pozisyon belirtilmiş');}else iss.push('Hedef pozisyon eksik');
-  if(p.eng){s+=5;gd.push('Dil becerisi belirtilmiş');}
-  if(p.summary&&p.summary.length>40)s+=5;else iss.push('Profesyonel özet eksik');
-  if(p.certs)s+=3;
-  const hm=p.duties1&&/\d+%|\d+ kişi|\d+ proje|\d+ müşteri/i.test(p.duties1);
-  if(hm){s+=5;gd.push('Ölçülebilir başarı var');}else iss.push('Ölçülebilir başarı ekle (örn: %20 artış)');
-  return{score:Math.min(s,100),iss,gd};
-}
-
-// MAKE CV
-async function makecv(){
-  const p=col();
-  const errs=[];
-  if(!p.name)errs.push('fn');
-  if(!p.email)errs.push('fe');
-  if(!p.target)errs.push('fta');
-  document.querySelectorAll('input,textarea').forEach(e=>e.classList.remove('err'));
-  if(errs.length){
-    errs.forEach(id=>document.getElementById(id).classList.add('err'));
-    toast('❌ Ad Soyad, E-posta ve Hedef Pozisyon zorunludur','error');
-    document.getElementById(errs[0]).scrollIntoView({behavior:'smooth',block:'center'});
-    return;
-  }
-  st.profile=p;
-  st.sector=detsec(p.target+' '+p.co1+' '+p.pos1);
-  go('cv');
-  document.getElementById('cvld').classList.add('show');
-  document.getElementById('cvcon').style.display='none';
-  await dl(1600);
-  rendcv(p);
-  const ats=calcats(p);
-  showats(ats);
-  document.getElementById('cvld').classList.remove('show');
-  document.getElementById('cvcon').style.display='block';
-}
-
-function rendcv(p){
-  const skls=(p.skills||'').split(',').map(s=>`<span class="cvsk">${s.trim()}</span>`).filter(s=>s.includes('>')).join('');
-  const fd=d=>{if(!d)return'';const[y,m]=d.split('-');return['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'][+m-1]+' '+y;};
-  const exp=p.co1?`<div class="cvi"><div class="cvir"><span class="cvit">${p.pos1||'Pozisyon'}</span><span class="cvid">${fd(p.start1)} – ${p.end1?fd(p.end1):'Devam Ediyor'}</span></div><div class="cvis">${p.co1}${p.city?' • '+p.city:''}</div><div class="cvidc">${p.duties1||''}</div></div>`:'<div class="cvidc" style="color:#bbb">Deneyim eklenmedi</div>';
-  const skillsHtml=(p.skills||'').split(',').map(s=>s.trim()).filter(Boolean).map(s=>`<span class="cvsk">${s}</span>`).join('');
-  document.getElementById('cvprev').innerHTML=`
-    <div class="cvname">${p.name}</div>
-    <div class="cvtitle">${p.target||''}</div>
-    <div class="cvc">${p.email?`<span>✉ ${p.email}</span>`:''} ${p.phone?`<span>📱 ${p.phone}</span>`:''} ${p.city?`<span>📍 ${p.city}</span>`:''} ${p.linkedin?`<span>🔗 ${p.linkedin}</span>`:''} ${p.website?`<span>🌐 ${p.website}</span>`:''}</div>
-    ${p.summary?`<div class="cvsec"><div class="cvsect">ÖZET</div><div style="font-size:13px;color:#444;line-height:1.6">${p.summary}</div></div>`:''}
-    <div class="cvsec"><div class="cvsect">DENEYİM</div>${exp}</div>
-    <div class="cvsec"><div class="cvsect">EĞİTİM</div><div class="cvi"><div class="cvir"><span class="cvit">${p.school||'Okul / Üniversite'}</span><span class="cvid">${p.gradyear||''}</span></div><div class="cvis">${p.degree||''} ${p.major?'– '+p.major:''}</div></div></div>
-    ${skillsHtml?`<div class="cvsec"><div class="cvsect">YETENEKler</div><div class="cvskls">${skillsHtml}</div></div>`:''}
-    ${p.eng||p.lang2?`<div class="cvsec"><div class="cvsect">DİLLER</div><div style="font-size:12px;color:#444">${p.eng?'İngilizce: '+p.eng:''}${p.lang2?' • '+p.lang2:''}</div></div>`:''}
-    ${p.certs?`<div class="cvsec"><div class="cvsect">SERTİFİKALAR</div><div style="font-size:12px;color:#444">${p.certs}</div></div>`:''}
-    ${(p.exSecs||[]).map(s=>`<div class="cvsec"><div class="cvsect">${s.header.toUpperCase()}</div><div class="cvi"><div class="cvir"><span class="cvit">${s.sub||''}</span><span class="cvid">${s.date||''}</span></div><div class="cvidc">${s.content||''}</div></div></div>`).join('')}`;
-}
-
-function showats(r){
-  const{score,iss,gd}=r;
-  document.getElementById('atsnt').textContent=score;
-  const c=283;
-  setTimeout(()=>{document.getElementById('atscirc').style.strokeDashoffset=c-(score/100)*c;},80);
-  const col=score>=80?'#43e97b':score>=55?'#ffc800':'#ff6584';
-  document.getElementById('atscirc').style.stroke=col;
-  document.getElementById('atsnt').style.color=col;
-  document.getElementById('atsdsc').textContent=score>=80?"Mükemmel! CV'niz çoğu ATS'den geçecek.":score>=55?'İyi. Önerileri uygulayarak güçlendirebilirsiniz.':score>=25?'Dikkat! CV eksik bilgiler içeriyor.':"Lütfen geri dönüp formu daha eksiksiz doldurun.";
-  const items=[{t:'good',tx:'✓ Tek kolon format — ATS uyumlu'},...gd.map(g=>({t:'good',tx:'✓ '+g})),...iss.map(i=>({t:i.includes('eksik')||i.includes('boş')||i.includes('memiş')?'bad':'warn',tx:(i.includes('eksik')||i.includes('boş')||i.includes('memiş')?'✗ ':'⚠ ')+i}))];
-  document.getElementById('atslst').innerHTML=items.map(i=>`<div class="ati ${i.t}">${i.tx}</div>`).join('');
-}
-
-// SECTOR DB
-const sec={
-  bilisim:{kw:['yazılım','developer','programlama','bilişim','yazılımcı','web','uygulama','react','python','java','it','teknoloji'],e:'💻',cats:['Yazılım Geliştirme','Frontend','Backend','Full Stack','Mobil','DevOps','Siber Güvenlik','Veri Analizi','UI/UX','IT Destek'],jobs:[{e:'💻',t:'Frontend Developer',co:'Trendyol',lo:'İstanbul/Uzaktan',tgs:['React','Uzaktan'],m:90},{e:'🚀',t:'Backend Developer',co:'Getir',lo:'İstanbul',tgs:['Node.js'],m:84},{e:'📱',t:'Mobil Geliştirici',co:'Hepsiburada',lo:'İstanbul',tgs:['Flutter'],m:76},{e:'🔒',t:'Siber Güvenlik Uzmanı',co:'Turkcell',lo:'İstanbul',tgs:['Security'],m:70}],pls:[['💻 Büyük Teknoloji','Trendyol, Getir, Hepsiburada'],['🏦 Fintek','Papara, iyzico, Midas'],['🏢 Kurumsal IT','Turkcell, Türk Telekom'],['🚀 Startuplar','Techstars portföy şirketleri']]},
-  saglik:{kw:['sağlık','hemşire','doktor','tıp','eczane','hasta','klinik','hastane','diş'],e:'🏥',cats:['Hemşirelik','Tıbbi Sekreterlik','Eczacılık','Fizik Tedavi','Radyoloji','Laboratuvar','Sağlık Yönetimi'],jobs:[{e:'🏥',t:'Hemşire',co:'Acıbadem Hastanesi',lo:'İstanbul',tgs:['Klinisyen'],m:90},{e:'💊',t:'Eczacı Asistanı',co:'Seçkin Eczanesi',lo:'Ankara',tgs:['Eczane'],m:80},{e:'🩺',t:'Tıbbi Sekreter',co:'Medical Park',lo:'İzmir',tgs:['Kayıt'],m:74},{e:'🧪',t:'Lab Teknisyeni',co:'Düzen Lab',lo:'İstanbul',tgs:['Analiz'],m:68}],pls:[['🏥 Özel Hastaneler','Acıbadem, Medical Park, Medicana'],['🏛 Devlet Hastaneleri','Şehir ve üniversite hastaneleri'],['💊 Eczaneler','Zincir ve bağımsız eczaneler'],['🏢 Sigorta','Sağlık sigortası şirketleri']]},
-  egitim:{kw:['öğretmen','eğitim','okul','akademi','kurs','pedagoji','ders'],e:'📚',cats:['Öğretmenlik','Okul Yönetimi','Özel Ders','Dil Okulu','Kurs & Etüt','Eğitim Teknolojisi'],jobs:[{e:'📚',t:'İngilizce Öğretmeni',co:'Dil Okulu',lo:'İstanbul',tgs:['Eğitim'],m:88},{e:'🎓',t:'Matematik Öğretmeni',co:'Özel Dersane',lo:'Ankara',tgs:['K-12'],m:82},{e:'💻',t:'EdTech Uzmanı',co:'Online Platform',lo:'Uzaktan',tgs:['Online'],m:74},{e:'👩‍🏫',t:'Okul Öncesi Öğretmeni',co:'Özel Anaokulu',lo:'İzmir',tgs:['Çocuk'],m:68}],pls:[['🏫 Özel Okullar','FMV Işık, Robert Kolej, Koç Okulu'],['📖 Dersaneler','Enka, Bilfen ve diğerleri'],['💻 Online Eğitim','Udemy, yerel edtech'],['🏛 Devlet Okulları','MEB bünyesinde okullar']]},
-  finans:{kw:['finans','muhasebe','banka','ekonomi','yatırım','sigortacı','vergi','mali','borsa','kredi'],e:'💰',cats:['Muhasebe','Bankacılık','Finans Analizi','Sigortacılık','Vergi','Yatırım','Risk Yönetimi'],jobs:[{e:'🏦',t:'Müşteri İlişkileri Uzmanı',co:'Garanti BBVA',lo:'İstanbul',tgs:['Bankacılık'],m:87},{e:'📊',t:'Mali Müşavir Asistanı',co:'KPMG Türkiye',lo:'İstanbul',tgs:['Denetim'],m:81},{e:'💳',t:'Kredi Analisti',co:'Yapı Kredi',lo:'İstanbul',tgs:['Risk'],m:75},{e:'📈',t:'Yatırım Uzmanı',co:'Midas',lo:'Uzaktan',tgs:['Fintek'],m:69}],pls:[['🏦 Büyük Bankalar','Garanti, Akbank, İş Bankası'],['📊 Denetim','KPMG, Deloitte, PwC, EY'],['💰 Fintek','Papara, iyzico, Midas'],['🏢 Sigorta','Allianz, Axa, Ziraat Sigorta']]},
-  turizm:{kw:['turizm','otel','restoran','yiyecek','içecek','f&b','oda','misafir','rehber','seyahat','konaklama'],e:'🏨',cats:['F&B Departmanı','Ön Büro','Housekeeping','Room Service','Restoran Yönetimi','Tur Rehberliği','Seyahat Acentesi'],jobs:[{e:'🏨',t:'F&B Supervisor',co:'5 Yıldızlı Otel',lo:'Antalya',tgs:['F&B'],m:90},{e:'🌊',t:'Room Service Sorumlusu',co:'Resort Otel',lo:'Bodrum',tgs:['Room Service'],m:85},{e:'🏖',t:'Restoran Sorumlusu',co:'Lüks Resort',lo:'İzmir',tgs:['Restoran'],m:78},{e:'✈️',t:'Tur Rehberi',co:'Seyahat Acentesi',lo:'İstanbul',tgs:['Rehber'],m:71}],pls:[['🌟 5 Yıldızlı Oteller','Hilton, Marriott, Sheraton'],['🏖 Resort Oteller','Rixos, Maxx Royal, Barut Collection'],['✈️ Seyahat Acenteleri','ETS Tur, Jolly Tur'],['🍽 Restoranlar','Fine dining, tematik restoranlar']]},
-  pazarlama:{kw:['pazarlama','marketing','sosyal medya','reklam','marka','dijital','seo','içerik','pr'],e:'📣',cats:['Dijital Pazarlama','Sosyal Medya','İçerik Üretimi','SEO/SEM','Marka Yönetimi','PR & İletişim','E-ticaret'],jobs:[{e:'📣',t:'Dijital Pazarlama Uzmanı',co:'Trendyol',lo:'İstanbul',tgs:['SEO','SEM'],m:89},{e:'📱',t:'Sosyal Medya Yöneticisi',co:'Arçelik',lo:'İstanbul',tgs:['Instagram'],m:83},{e:'✍️',t:'İçerik Yazarı',co:'Dijital Medya',lo:'Uzaktan',tgs:['SEO'],m:75},{e:'🎯',t:'Performance Marketing',co:'E-ticaret Firması',lo:'İstanbul',tgs:['Google Ads'],m:70}],pls:[['🛒 E-ticaret','Trendyol, Hepsiburada, Amazon TR'],['📺 Medya','TV kanalları, dijital medya ajansları'],['🏢 Kurumsal','Arçelik, büyük markalar'],['🎨 Ajanslar','Reklam ve dijital ajanslar']]},
-  ik:{kw:['insan kaynakları','ik','hr','işe alım','özlük','bordro','recruitment'],e:'👥',cats:['İşe Alım','Özlük & Bordro','Eğitim & Gelişim','İK Danışmanlığı','Yetenek Yönetimi'],jobs:[{e:'👥',t:'İşe Alım Uzmanı',co:'Büyük Holding',lo:'İstanbul',tgs:['Recruitment'],m:88},{e:'📋',t:'İK Generalist',co:'Koç Holding',lo:'İstanbul',tgs:['Özlük'],m:82},{e:'🎓',t:'Eğitim Gelişim Uzmanı',co:'Sabancı',lo:'İstanbul',tgs:['L&D'],m:75},{e:'💼',t:'İK Danışmanı',co:'Adecco TR',lo:'İstanbul',tgs:['Danışmanlık'],m:69}],pls:[['🏢 Büyük Holdinglar','Koç, Sabancı, Doğuş, Eczacıbaşı'],['💼 İK Danışmanlık','Adecco, Manpower, Michael Page'],['🏭 Üretim','Sanayi ve üretim şirketleri'],['💻 Teknoloji','Hızlı büyüyen tech şirketleri']]},
-  genel:{kw:[],e:'💼',cats:['Satış','Müşteri Hizmetleri','Yönetim','Proje Yönetimi','Operasyon','İdari İşler','Lojistik'],jobs:[{e:'💼',t:'Satış Temsilcisi',co:'Çeşitli Sektörler',lo:'Türkiye',tgs:['Satış'],m:78},{e:'📞',t:'Müşteri Temsilcisi',co:'Çağrı Merkezi',lo:'Uzaktan',tgs:['Destek'],m:73},{e:'📦',t:'Operasyon Uzmanı',co:'Lojistik Firması',lo:'İstanbul',tgs:['Operasyon'],m:68},{e:'🗂',t:'Ofis Yöneticisi',co:'Çeşitli',lo:'İstanbul',tgs:['Ofis'],m:62}],pls:[['💻 Online Platformlar','İŞKUR, Kariyer.net, LinkedIn'],['🏢 Her Sektör','Hedef sektörünüzü belirtin'],['🤝 Ağ Kurma','LinkedIn, sektör etkinlikleri'],['📋 Kariyer Fuarları','Üniversite ve sektör fuarları']]}
-};
-
-function detsec(txt){
-  if(!txt)return'genel';
-  const l=txt.toLowerCase();
-  for(const[k,v]of Object.entries(sec)){if(k==='genel')continue;if(v.kw.some(w=>l.includes(w)))return k;}
-  return'genel';
-}
-
-// CATEGORIES
-async function analcat(){
-  const v=document.getElementById('catin').value.trim();
-  if(!v){toast('Lütfen hedef pozisyonunuzu yazın','error');return;}
-  const btn=event.target;btn.disabled=true;btn.textContent='Analiz ediliyor...';
-  st.catInput=v;
-  st.sector=detsec(v);
-  try {
-    const sys=`Sen bir kariyer uzmanısın. Kişinin hedef pozisyonu verilecek. Ona uygun 6-8 iş kategorisi öner. JSON döndür (başka bir şey yazma):
-{"cats":["Kategori1","Kategori2","Kategori3","Kategori4","Kategori5","Kategori6"]}
-Türkçe, sektöre özgü kategoriler yaz.`;
-    const result=await ai(sys,`Hedef: ${v}`);
-    const clean=result.replace(/```json|```/g,'').trim();
-    const d=JSON.parse(clean);
-    document.getElementById('cattgs').innerHTML=d.cats.map(c=>`<button class="tb" onclick="togc(this,'${c}')">${c}</button>`).join('');
-    document.getElementById('catsg').style.display='block';
-    toast('✨ Kategoriler oluşturuldu','success');
-  } catch(e) {
-    // fallback to static
-    const d=sec[st.sector];
-    document.getElementById('cattgs').innerHTML=d.cats.map(c=>`<button class="tb" onclick="togc(this,'${c}')">${c}</button>`).join('');
-    document.getElementById('catsg').style.display='block';
-  }
-  btn.disabled=false;btn.textContent='Analiz Et ✨';
-}
-function togc(b,c){b.classList.toggle('sel');if(b.classList.contains('sel'))st.cats.push(c);else st.cats=st.cats.filter(x=>x!==c);}
-
-// JOBS
-async function loadjobs(){
-  const jl=document.getElementById('jbld');const jls=document.getElementById('jbls');
-  jl.classList.add('show');jls.style.display='none';
-  const p=st.profile;
-  const hedef=st.catInput||document.getElementById('catin')?.value||p.target||'';
-  try {
-    const sys=`Sen bir kariyer danışmanısın. Adayın profili verilecek. Ona uygun 4 gerçekçi iş ilanı üret. JSON döndür (başka bir şey yazma):
-{"jobs":[{"e":"emoji","t":"Pozisyon Adı","co":"Şirket Adı (Türkiye'den gerçek şirket)","lo":"Şehir","tgs":["etiket1","etiket2"],"m":85,"neden":"Bu ilanın adaya uygunluk sebebi 1 cümle"}],"yerler":"Bu alanda başvurulabilecek şirket ve platformlar hakkında 3-4 satır bilgi"}
-Uyum skoru (m) 60-95 arası olsun. Türkiye'den gerçek şirket isimleri kullan. Türkçe yaz.`;
-    const profil=`Ad: ${p.name||''}, Hedef: ${hedef}, Deneyim: ${p.pos1||''} @ ${p.co1||''}, Beceriler: ${p.skills||''}, Eğitim: ${p.major||''}, Sektör: ${p.sector||st.sector}`;
-    const result=await ai(sys,profil);
-    const clean=result.replace(/```json|```/g,'').trim();
-    const d=JSON.parse(clean);
-    jls.innerHTML=d.jobs.map(j=>`<div class="jc" onclick="selj(this,'${j.co.replace(/'/g,"\\'")}','${j.t.replace(/'/g,"\\'")}',${j.m})">
-      <div class="jlog">${j.e}</div>
-      <div class="ji">
-        <div class="jt">${j.t}</div>
-        <div class="jco">${j.co} • ${j.lo}</div>
-        <div class="jtgs">${j.tgs.map(t=>`<span class="jtg">${t}</span>`).join('')}<span class="jtg m">%${j.m} uyum</span></div>
-        <div style="font-size:12px;color:var(--tx3);margin-top:5px">💡 ${j.neden}</div>
-      </div>
-      <div class="ms">${j.m}%<span>uyum</span></div>
-    </div>`).join('');
-    document.getElementById('aplpl').innerHTML=`<div style="font-size:14px;color:var(--tx2);line-height:1.8">${d.yerler}</div>`;
-    toast('✨ Kişiye özel ilanlar oluşturuldu','success');
-  } catch(e) {
-    // fallback
-    const sector=st.sector||detsec(hedef);
-    const d=sec[sector]||sec.genel;
-    jls.innerHTML=d.jobs.map(j=>`<div class="jc" onclick="selj(this,'${j.co}','${j.t}',${j.m})"><div class="jlog">${j.e}</div><div class="ji"><div class="jt">${j.t}</div><div class="jco">${j.co} • ${j.lo}</div><div class="jtgs">${j.tgs.map(t=>`<span class="jtg">${t}</span>`).join('')}<span class="jtg m">%${j.m} uyum</span></div></div><div class="ms">${j.m}%<span>uyum</span></div></div>`).join('');
-    document.getElementById('aplpl').innerHTML=d.pls.map(([t,dc])=>`<strong style="color:var(--tx)">${t}</strong> — ${dc}<br>`).join('');
-  }
-  jl.classList.remove('show');jls.style.display='block';
-}
-function selj(el,co,pos,m){
-  document.querySelectorAll('.jc').forEach(x=>x.classList.remove('sel'));
-  el.classList.add('sel');
-  st.job={co,pos,m};
-  document.getElementById('cose').value=co;
-  document.getElementById('apco').textContent=co;
-  document.getElementById('appos').textContent=pos;
-  document.getElementById('apm').innerHTML=m+'%<span>uyum</span>';
-  toast('✓ '+co+' seçildi','success');
-}
-async function anwhy(){
-  const v=document.getElementById('wyin').value.trim();
-  if(!v){toast('İlan metnini yapıştırın','error');return;}
-  const btn=event.target;btn.disabled=true;btn.textContent='Analiz ediliyor...';
-  const el=document.getElementById('wyre');
-  el.innerHTML='<div style="color:var(--tx2);font-size:13px;padding:13px">🔍 AI analiz yapıyor...</div>';
-  try {
-    const p=st.profile;
-    const cvSum=`Ad: ${p.name||'Belirtilmemiş'}, Pozisyon: ${p.pos1||p.target||'Belirtilmemiş'}, Şirket: ${p.co1||'Belirtilmemiş'}, Beceriler: ${p.skills||'Belirtilmemiş'}, Eğitim: ${p.major||''} ${p.school||''}`;
-    const sys=`Sen bir kariyer koçusun. Aday CV özeti ve iş ilanı verilecek. Elenme sebepleri ve güçlü yönleri analiz et. JSON döndür (başka bir şey yazma):
-{"elenme":["sebep1","sebep2","sebep3"],"guclu":["yön1","yön2"],"oneri":"kısa öneri metni","uyum":75}
-Türkçe, özlü yaz.`;
-    const result=await ai(sys,`CV: ${cvSum}\n\nİş İlanı:\n${v.substring(0,1500)}`);
-    const clean=result.replace(/```json|```/g,'').trim();
-    const d=JSON.parse(clean);
-    el.innerHTML=`<div style="background:rgba(255,200,0,.06);border:1px solid rgba(255,200,0,.2);border-radius:9px;padding:13px 15px;font-size:13px;line-height:1.9;margin-bottom:9px"><b style="color:#ffc800">⚠️ Olası Elenme Sebepleri</b><br>${d.elenme.map(s=>'• '+s).join('<br>')}</div><div style="background:rgba(67,233,123,.07);border:1px solid rgba(67,233,123,.2);border-radius:9px;padding:13px 15px;font-size:13px;line-height:1.9;margin-bottom:9px"><b style="color:var(--ac3)">✅ Güçlü Yönleriniz</b><br>${d.guclu.map(s=>'• '+s).join('<br>')}</div><div style="background:rgba(108,99,255,.07);border:1px solid rgba(108,99,255,.2);border-radius:9px;padding:13px 15px;font-size:13px;line-height:1.6"><b style="color:var(--ac)">💡 Öneri</b><br>${d.oneri}</div>`;
-    toast('Analiz tamamlandı — Uyum: %'+d.uyum,'success');
-  } catch(e) {
-    el.innerHTML='<div style="color:var(--ac2)">Analiz hatası, tekrar deneyin.</div>';
-    console.error(e);
-  }
-  btn.disabled=false;btn.textContent='Analiz Et';
-}
-
-// COMPANY
-async function resco(){
-  const name=document.getElementById('cose').value.trim();
-  if(!name){toast('Şirket adı girin','error');return;}
-  document.getElementById('cold').classList.add('show');
-  document.getElementById('core').style.display='none';
-  try {
-    const p=st.profile;
-    const sys=`Sen bir kariyer danışmanısın. Şirket adı ve aday profili verilecek. Bilinen genel bilgilerle şirketi analiz et. JSON döndür (başka bir şey yazma):
-{"sektor":"Teknoloji","calisan":"1000-5000","puan":"4.1/5","profil":"Bu şirkette aranan profil...","yorumlar":[{"yazar":"Eski Çalışan","puan":4,"text":"yorum"},{"yazar":"Mevcut Çalışan","puan":5,"text":"yorum"}],"uyum":"Bu adayın şirketle uyum analizi..."}
-Türkçe yaz.`;
-    const result=await ai(sys,`Şirket: ${name}\nAday: ${p.pos1||p.target||'İş arayan'}, ${p.skills||''}`);
-    const clean=result.replace(/```json|```/g,'').trim();
-    const d=JSON.parse(clean);
-    document.getElementById('conm').textContent=name;
-    document.getElementById('cose2').textContent=d.sektor+' sektörü';
-    document.getElementById('coem').textContent='🏢';
-    document.getElementById('cols').innerHTML=[['🌐 Web Sitesi','https://'+name.toLowerCase().replace(/\s/g,'')+'.com'],['💼 LinkedIn','https://linkedin.com/search/results/companies/?keywords='+encodeURIComponent(name)],['⭐ Glassdoor','https://www.glassdoor.com/Search/results.htm?keyword='+encodeURIComponent(name)]].map(([l,u])=>`<a class="cl" href="${u}" target="_blank">${l}</a>`).join('');
-    document.getElementById('coig').innerHTML=[['Sektör',d.sektor],['Çalışan Sayısı',d.calisan],['Çalışan Puanı',d.puan],['Durum','Aktif']].map(([k,v])=>`<div class="ib"><div class="ibl">${k}</div><div class="ibv">${v}</div></div>`).join('');
-    document.getElementById('copr').textContent=d.profil;
-    document.getElementById('corv').innerHTML=d.yorumlar.map(y=>`<div class="rev"><div class="revr"><span class="reva">${y.yazar}</span><span class="sts">${'★'.repeat(y.puan)}</span></div><div class="revt">${y.text}</div></div>`).join('');
-    document.getElementById('comt').innerHTML=`<div style="color:var(--tx2);font-size:14px;line-height:1.7">${d.uyum}</div>`;
-    toast(name+' analizi tamamlandı','success');
-  } catch(e) {
-    toast('Analiz hatası','error');console.error(e);
-  }
-  document.getElementById('cold').classList.remove('show');
-  document.getElementById('core').style.display='block';
-}
-
-// COVER LETTER
-async function mkcover(){
-  const p=st.profile;const j=st.job;
-  document.getElementById('covsec').style.display='block';
-  document.getElementById('covtxt').value='✍️ Kapak mektubu yazılıyor...';
-  try {
-    const sys=`Sen profesyonel bir kariyer danışmanısın. Verilen bilgilerle kişiselleştirilmiş, samimi ve profesyonel bir Türkçe kapak mektubu yaz. Sadece mektubu yaz, başka açıklama ekleme.`;
-    const info=`Aday: ${p.name||'Ad Soyad'}\nE-posta: ${p.email||''}\nTelefon: ${p.phone||''}\nŞehir: ${p.city||''}\nDeneyim: ${p.co1||''} - ${p.pos1||''}\nBeceriler: ${p.skills||''}\nEğitim: ${p.major||''} - ${p.school||''}\nİngilizce: ${p.eng||''}\nBaşvurulan Şirket: ${j?.co||'Şirket'}\nBaşvurulan Pozisyon: ${j?.pos||'Pozisyon'}`;
-    const result=await ai(sys,info);
-    document.getElementById('covtxt').value=result;
-    toast('Kapak mektubu hazır!','success');
-  } catch(e) {
-    document.getElementById('covtxt').value=`Sayın İnsan Kaynakları Ekibi,\n\n${j?.co||'Şirketiniz'} bünyesinde ${j?.pos||'uygun bir pozisyon'} için başvurumu iletmekten memnuniyet duyarım.\n\nSaygılarımla,\n${p.name||'Ad Soyad'}`;
-    toast('AI hatası, şablon kullanıldı','warn');
+function navigateTo(catId) {
+  currentCatId = catId;
+  if (catId === null) {
+    document.getElementById('home-view').classList.remove('hidden');
+    document.getElementById('detail-view').classList.remove('open');
+    breadcrumbTrail = [];
+    renderRootGrid();
+  } else {
+    document.getElementById('home-view').classList.add('hidden');
+    document.getElementById('detail-view').classList.add('open');
+    renderDetail(catId);
   }
 }
-function addtotr(){if(st.job)addtre(st.job.co,st.job.pos,'pending');go('tracker');}
 
-// CV UPLOAD
-function upcv(inp){
-  if(!inp.files.length)return;
-  const f=inp.files[0];
-  const z=document.getElementById('upz');
-  z.innerHTML=`<div style="font-size:30px">✅</div><h3>${f.name} yüklendi!</h3><p>Form dolduruluyor<span class="dots"></span></p>`;
-  setTimeout(()=>{
-    document.getElementById('fn').value='Ad Soyad';
-    document.getElementById('fe').value='email@ornek.com';
-    document.getElementById('fci').value='İstanbul';
-    z.innerHTML='<div style="font-size:30px">✅</div><h3>Form hazır!</h3><p style="color:var(--ac3)">Bilgileri kontrol edip düzenleyebilirsiniz.</p>';
-    toast("CV'den bilgiler okundu, kontrol edin",'success');
-  },1400);
-}
-function dropf(e){e.preventDefault();document.getElementById('upz').style.borderColor='';const f=e.dataTransfer.files[0];if(f)upcv({files:[f]});}
-
-// INTERVIEW
-const ivqb={
-  general:['Kendinizden bahseder misiniz?','Bu pozisyona neden başvurdunuz?','En büyük güçlü yönünüz nedir?','Zor bir durumla nasıl başa çıktınız?','5 yıl sonra kendinizi nerede görüyorsunuz?'],
-  behavioral:['Takım içinde yaşadığınız bir çatışmayı anlatın.','Baskı altında çalışmak zorunda kaldığınız bir örnek.','Bir hata yaptığınızda ne yaparsınız?','Standartların ötesine geçtiğiniz bir durumu anlatın.','Liderlik sergilediğiniz bir örnek.'],
-  technical:['Kullandığınız temel araçlar nelerdir?','Teknik bir sorunu nasıl çözersiniz?','Alanınızdaki gelişmeleri nasıl takip ediyorsunuz?','Karmaşık bir projeyi yönetme sürecinizi anlatın.','Kullanıcı/müşteri sorununu çözdüğünüz bir örnek.'],
-  stress:['Şimdiye kadar yaptığınız en büyük hata neydi?','Neden hâlâ iş arıyorsunuz?','Bir önceki işinizden neden ayrıldınız?','Biz sizi neden işe alalım?','En büyük zayıf yönünüz nedir?']
-};
-let ivtyp='general';
-function sivt(b,t){document.querySelectorAll('#ivtp .tb').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');ivtyp=t;}
-function startiv(){
-  st.ivqs=ivqb[ivtyp];st.ivas=new Array(st.ivqs.length).fill('');st.ivix=0;
-  document.getElementById('ivs').style.display='none';
-  document.getElementById('ivse').style.display='block';
-  document.getElementById('totq').textContent=st.ivqs.length;
-  rendq();
-}
-function rendq(){
-  const i=st.ivix;
-  document.getElementById('curq').textContent=i+1;
-  document.getElementById('qcon').innerHTML=`<div class="qc"><div class="qn">Soru ${i+1}</div><div class="qt">${st.ivqs[i]}</div><div class="aa"><textarea id="answ" placeholder="Cevabınızı buraya yazın..." style="min-height:110px;padding-right:44px">${st.ivas[i]}</textarea><button class="mb" id="mcbtn" onclick="togmic()">🎤</button></div><div class="fb good" id="fbg"><div class="fbt">✅ Güçlü Yön</div><div id="fbgt"></div></div><div class="fb warn" id="fbw"><div class="fbt">💡 Gelişim Önerisi</div><div id="fbwt"></div></div></div>`;
-  document.getElementById('pvbtn').style.display=i>0?'inline-flex':'none';
-  document.getElementById('nxbtn').textContent=i<st.ivqs.length-1?'Cevapla & Devam →':'Mülakatı Tamamla ✓';
-}
-function nxq(){
-  const a=document.getElementById('answ').value;
-  st.ivas[st.ivix]=a;
-  if(a.trim().length<8){document.getElementById('answ').classList.add('err');toast('Lütfen cevabınızı yazın','error');setTimeout(()=>document.getElementById('answ').classList.remove('err'),1200);return;}
-  showfb(a);
-  if(st.ivix<st.ivqs.length-1){setTimeout(()=>{st.ivix++;rendq();},1800);}else{setTimeout(showrep,1800);}
-}
-function pvq(){st.ivas[st.ivix]=document.getElementById('answ').value;st.ivix--;rendq();}
-async function showfb(a){
-  document.getElementById('fbg').classList.add('show');
-  document.getElementById('fbw').classList.add('show');
-  document.getElementById('fbgt').textContent='Değerlendiriliyor...';
-  document.getElementById('fbwt').textContent='...';
-  try {
-    const q=st.ivqs[st.ivix];
-    const sys=`Sen bir mülakat koçusun. Mülakat sorusu ve adayın cevabı verilecek. Kısa geri bildirim ver. JSON döndür (başka bir şey yazma):
-{"guclu":"güçlü yön (1 cümle)","gelistir":"geliştirilecek nokta (1 cümle)"}
-Türkçe yaz.`;
-    const result=await ai(sys,`Soru: ${q}\nCevap: ${a}`);
-    const clean=result.replace(/```json|```/g,'').trim();
-    const d=JSON.parse(clean);
-    document.getElementById('fbgt').textContent=d.guclu;
-    document.getElementById('fbwt').textContent=d.gelistir;
-  } catch(e) {
-    const lg=a.length>80,he=/örn|örnek|zaman|kez|bir|durum/i.test(a);
-    document.getElementById('fbgt').textContent=lg?'Cevabınız yeterli detay içeriyor.':'Kısa ve net cevap.';
-    document.getElementById('fbwt').textContent=!he?'Somut örnek ekleyin (STAR: Durum→Görev→Eylem→Sonuç).':'Başarıyı sayısal ifadeyle destekleyin.';
+function buildAncestors(catId) {
+  const trail = [];
+  let c = data.cats[catId];
+  while(c) {
+    trail.unshift(c);
+    c = c.parentId ? data.cats[c.parentId] : null;
   }
-}
-function showrep(){
-  document.getElementById('ivse').style.display='none';
-  document.getElementById('ivrp').style.display='block';
-  const f=st.ivas.filter(a=>a.trim().length>8).length;
-  const sc=Math.round((f/st.ivqs.length)*100);
-  document.getElementById('ivsc').textContent=sc+'%';
-  document.getElementById('ivlb').textContent=sc>=80?'🎉 Harika Performans!':sc>=60?'👍 İyi Performans':'💪 Pratik Yapmaya Devam';
-  document.getElementById('strl').innerHTML='<div class="si">💬 Sorulara aktif katıldınız</div><div class="si">🎯 Sektöre hakim bir tutum sergilediğiniz görülüyor</div>';
-  document.getElementById('impl').innerHTML='<div class="ii">📖 STAR tekniğini daha aktif kullanın</div><div class="ii">🔢 Başarıları sayısal ifadelerle destekleyin</div>';
-}
-function endiv(){st.ivas[st.ivix]=document.getElementById('answ')?.value||'';showrep();}
-function rstiv(){document.getElementById('ivrp').style.display='none';document.getElementById('ivs').style.display='block';}
-
-// MIC
-let recog=null,isrec=false;
-function togmic(){
-  const b=document.getElementById('mcbtn');
-  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){toast('Chrome tarayıcısı gerekli','warn');return;}
-  if(!isrec){
-    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-    recog=new SR();recog.lang='tr-TR';recog.continuous=true;recog.interimResults=true;
-    recog.onresult=e=>{document.getElementById('answ').value=Array.from(e.results).map(r=>r[0].transcript).join('');};
-    recog.start();isrec=true;b.classList.add('rec');b.textContent='⏹';
-  }else{recog.stop();isrec=false;b.classList.remove('rec');b.textContent='🎤';}
+  return trail;
 }
 
-// TRACKER
-const stm={pending:'Beklemede',interview:'Mülakat',offer:'Teklif',rejected:'Reddedildi'};
-const scm={pending:'stp',interview:'sti',offer:'sto',rejected:'str'};
-function addtr(){
-  const co=document.getElementById('trc').value.trim();
-  if(!co){toast('Şirket adı girin','error');return;}
-  addtre(co,document.getElementById('trp').value.trim(),document.getElementById('trs').value);
-  document.getElementById('trc').value='';document.getElementById('trp').value='';
-}
-function addtre(co,pos,s){
-  st.tracks.unshift({id:Date.now(),co,pos,s,date:new Date().toLocaleDateString('tr-TR')});
-  rendtr();
-}
-function rendtr(){
-  const g=document.getElementById('trg');
-  document.getElementById('tre').style.display=st.tracks.length?'none':'block';
-  g.innerHTML=st.tracks.map(e=>`<div class="trc"><span class="trst ${scm[e.s]}">${stm[e.s]}</span><div class="trco">${e.co}</div><div class="trpos">${e.pos||'—'}</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:9px"><span style="font-size:11px;color:var(--tx3)">📅 ${e.date}</span><button onclick="deltr(${e.id})" style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:15px">✕</button></div></div>`).join('');
-}
-function deltr(id){st.tracks=st.tracks.filter(e=>e.id!==id);rendtr();}
-
-// CV ÖZELLEŞTİRME
-let cvColor='#6c63ff';
-function setCVColor(c){
-  cvColor=c;
-  const box=document.getElementById('cvprev');
-  if(!box)return;
-  box.querySelectorAll('.cvsect,.cvtitle,.cvc').forEach(el=>el.style.color=c);
-  box.querySelectorAll('.cvc').forEach(el=>el.style.borderBottomColor=c);
-  box.querySelectorAll('.cvsk').forEach(el=>{el.style.background=c+'22';el.style.color=c;});
-  document.querySelectorAll('[onclick^="setCVColor"]').forEach(b=>b.style.border='2px solid transparent');
-  event.target.style.border='3px solid #fff';
-  toast('Renk değiştirildi','success');
-}
-function setCVFont(f){
-  const box=document.getElementById('cvprev');
-  if(box)box.style.fontFamily=f;
-}
-function setCVLayout(v){
-  const box=document.getElementById('cvprev');
-  if(!box)return;
-  const pad={normal:'42px',compact:'24px',spacious:'56px'}[v]||'42px';
-  box.style.padding=pad;
-}
-function setCVNameSize(s){
-  const el=document.querySelector('#cvprev .cvname');
-  if(el)el.style.fontSize=s;
+// ─── ROOT GRID ─────────────────────────────────────────
+function renderRootGrid() {
+  const grid = document.getElementById('root-cat-grid');
+  const roots = Object.values(data.cats).filter(c => !c.parentId);
+  grid.innerHTML = '';
+  roots.forEach(c => grid.appendChild(makeCatCard(c)));
+  const addBtn = document.createElement('button');
+  addBtn.className = 'add-cat-card';
+  addBtn.innerHTML = '+ Kategori ekle';
+  addBtn.onclick = () => openCatModal(null);
+  grid.appendChild(addBtn);
 }
 
-// EKSTRA BÖLÜMLER
-let exSecCount=0;
-function addExSec(){
-  exSecCount++;
-  const id=exSecCount;
-  const div=document.createElement('div');
-  div.id='exsec-'+id;
-  div.style.cssText='background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:11px';
-  div.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><span style="font-size:12px;font-weight:600;color:var(--ac)">Bölüm '+id+'</span><button onclick="document.getElementById(\'exsec-'+id+'\').remove()" style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:16px">✕</button></div><div class="fg2"><div class="fg full"><label>Ana Başlık</label><input id="exh-'+id+'" type="text" placeholder="Örn: Projeler, Ödüller, Gönüllülük..."></div><div class="fg"><label>Alt Başlık</label><input id="exs-'+id+'" type="text" placeholder="Örn: Proje Adı, Ödül Adı..."></div><div class="fg"><label>Tarih / Yer</label><input id="exd-'+id+'" type="text" placeholder="Örn: 2024, İstanbul..."></div><div class="fg full"><label>Açıklama</label><textarea id="exc-'+id+'" placeholder="Detaylar..." style="min-height:70px"></textarea></div></div>';
-  document.getElementById('exsecs').appendChild(div);
-}
-function getExSecs(){
-  const secs=[];
-  for(let i=1;i<=exSecCount;i++){
-    const el=document.getElementById('exsec-'+i);
-    if(!el)continue;
-    const h=document.getElementById('exh-'+i)?.value.trim();
-    if(!h)continue;
-    secs.push({header:h,sub:document.getElementById('exs-'+i)?.value.trim()||'',date:document.getElementById('exd-'+i)?.value.trim()||'',content:document.getElementById('exc-'+i)?.value.trim()||''});
-  }
-  return secs;
+function makeCatCard(cat) {
+  const noteCount = Object.values(data.notes).filter(n => n.catId === cat.id).length;
+  const subCount  = Object.values(data.cats).filter(c => c.parentId === cat.id).length;
+  const card = document.createElement('div');
+  card.className = 'cat-card';
+  card.style.borderColor = cat.color + '55';
+  card.style.background = cat.color + '12';
+  card.innerHTML = `
+    <button class="cat-del" onclick="deleteCategory(event,'${cat.id}')">✕</button>
+    <span class="cat-emoji">${cat.emoji}</span>
+    <span class="cat-name">${cat.name}</span>
+    <span class="cat-count">${noteCount} not · ${subCount} alt kategori</span>
+  `;
+  card.onclick = () => navigateTo(cat.id);
+  return card;
 }
 
-// PDF İNDİR
-function downloadPDF(){
-  const el=document.getElementById('cvprev');
-  if(!el||!el.innerHTML.trim()){toast('Önce CV oluşturun','error');return;}
-  const content=el.innerHTML;
-  const printWin=window.open('','_blank','width=800,height=900');
-  printWin.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${st.profile?.name||'CV'}</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-  <style>
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:'DM Sans',sans-serif;background:#fff;color:#1a1a2e;padding:32px;max-width:700px;margin:0 auto}
-    .cvname{font-family:'Syne',sans-serif;font-size:25px;font-weight:800;color:#1a1a2e;margin-bottom:3px}
-    .cvtitle{font-size:13px;color:#6c63ff;font-weight:500;margin-bottom:13px}
-    .cvc{display:flex;gap:13px;flex-wrap:wrap;font-size:11px;color:#777;margin-bottom:18px;padding-bottom:15px;border-bottom:2px solid #6c63ff}
-    .cvsec{margin-bottom:16px}
-    .cvsect{font-family:'Syne',sans-serif;font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#6c63ff;margin-bottom:7px}
-    .cvi{margin-bottom:9px}
-    .cvir{display:flex;justify-content:space-between;align-items:flex-start}
-    .cvit{font-weight:600;font-size:13px;color:#1a1a2e}
-    .cvid{font-size:11px;color:#aaa;white-space:nowrap}
-    .cvis{font-size:12px;color:#666;margin:2px 0}
-    .cvidc{font-size:12px;color:#444;line-height:1.5;margin-top:3px}
-    .cvskls{display:flex;flex-wrap:wrap;gap:5px}
-    .cvsk{background:#f0eeff;color:#6c63ff;padding:3px 9px;border-radius:100px;font-size:11px;font-weight:500}
-    @media print{body{padding:20px}@page{margin:15mm}}
-  </style></head><body>${content}
-  <script>window.onload=function(){window.print();setTimeout(function(){window.close();},1000);}<\/script>
-  </body></html>`);
-  printWin.document.close();
-  toast('Yazdır penceresi açıldı — PDF olarak kaydet seçin','success');
-}
+// ─── DETAIL VIEW ───────────────────────────────────────
+function renderDetail(catId) {
+  const cat = data.cats[catId];
+  if (!cat) return navigateTo(null);
 
-const dl=ms=>new Promise(r=>setTimeout(r,ms));
+  // accent color
+  document.getElementById('detail-emoji').textContent = cat.emoji;
+  document.getElementById('detail-title').textContent  = cat.name;
 
-// AI API HELPER
-async function ai(system, userMsg) {
-  const res = await fetch('/api/claude', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({
-      system,
-      messages: [{role: 'user', content: userMsg}]
-    })
+  // breadcrumb
+  const ancestors = buildAncestors(catId);
+  const bc = document.getElementById('breadcrumb');
+  bc.innerHTML = `<span onclick="navigateTo(null)">🏠 Ana sayfa</span>`;
+  ancestors.forEach((a, i) => {
+    bc.innerHTML += `<span class="sep">›</span>`;
+    if (i < ancestors.length - 1) {
+      bc.innerHTML += `<span onclick="navigateTo('${a.id}')">${a.emoji} ${a.name}</span>`;
+    } else {
+      bc.innerHTML += `<span class="current">${a.emoji} ${a.name}</span>`;
+    }
   });
-  const data = await res.json();
-  if (data.content && data.content[0]) return data.content[0].text;
-  throw new Error('API yanıt vermedi');
+
+  // sub cats
+  const subcats = Object.values(data.cats).filter(c => c.parentId === catId);
+  const sg = document.getElementById('subcat-grid');
+  sg.innerHTML = '';
+  subcats.forEach(sc => {
+    const chip = document.createElement('div');
+    chip.className = 'subcat-chip';
+    chip.style.borderColor = sc.color + '88';
+    chip.style.background  = sc.color + '18';
+    chip.innerHTML = `${sc.emoji} ${sc.name}`;
+    chip.onclick = () => navigateTo(sc.id);
+    sg.appendChild(chip);
+  });
+
+  // notes
+  const notes = Object.values(data.notes).filter(n => n.catId === catId);
+  const nl = document.getElementById('notes-list');
+  nl.innerHTML = '';
+  notes.forEach(n => nl.appendChild(makeNoteCard(n, cat.color)));
+
+  document.getElementById('empty-msg').style.display =
+    (notes.length === 0 && subcats.length === 0) ? 'block' : 'none';
 }
 
-// INIT
-st.tracks=[{id:1,co:'Örnek Şirket A',pos:'Pozisyon',s:'interview',date:'10.03.2026'},{id:2,co:'Örnek Şirket B',pos:'Pozisyon',s:'pending',date:'08.03.2026'}];
-rendtr();
+function makeNoteCard(note, accentColor) {
+  const card = document.createElement('div');
+  card.className = 'note-card';
+  card.style.setProperty('--accent', accentColor || '#ccc');
+  const typeLabel = { text:'Metin', link:'Bağlantı', image:'Fotoğraf' };
+  let inner = `<div class="note-type-badge">${typeLabel[note.type] || ''}</div>`;
+  if (note.type === 'text') {
+    inner += `<div class="note-text">${escHtml(note.content)}</div>`;
+  } else if (note.type === 'link') {
+    const desc = note.desc ? escHtml(note.desc) : escHtml(note.content);
+    inner += `<div class="note-link"><a href="${escHtml(note.content)}" target="_blank" rel="noopener">${desc}</a></div>`;
+  } else if (note.type === 'image') {
+    inner += `<img class="note-img" src="${note.content}" alt="Not görseli">`;
+  }
+  inner += `<button class="note-del" onclick="deleteNote(event,'${note.id}')">✕</button>`;
+  card.innerHTML = inner;
+  return card;
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── CATEGORY MODAL ────────────────────────────────────
+const EMOJIS = ['📁','📂','⭐','🔥','💡','📝','🎨','🤖','🎯','📚','🌿','🎵','💻','🔬','🏋️','✈️','🍕','💬','🔑','📊','🎮','💰','📷','🌟','🗂'];
+const COLORS = ['#e74c3c','#e67e22','#f1c40f','#2ecc71','#1abc9c','#3498db','#9b59b6','#34495e','#e91e63','#795548'];
+
+let selectedEmoji = EMOJIS[0];
+let selectedColor = COLORS[5];
+let parentIdForNewCat = null;
+
+function openCatModal(parentId) {
+  parentIdForNewCat = parentId;
+  selectedEmoji = EMOJIS[0];
+  selectedColor = COLORS[5];
+  document.getElementById('cat-name-input').value = '';
+  document.getElementById('cat-modal-title').textContent =
+    parentId === null ? 'Kategori Ekle' : 'Alt Kategori Ekle';
+
+  // render emojis
+  const eg = document.getElementById('emoji-grid');
+  eg.innerHTML = '';
+  EMOJIS.forEach(e => {
+    const b = document.createElement('button');
+    b.className = 'emoji-btn' + (e === selectedEmoji ? ' selected' : '');
+    b.textContent = e;
+    b.onclick = () => { selectedEmoji = e; eg.querySelectorAll('.emoji-btn').forEach(x => x.classList.remove('selected')); b.classList.add('selected'); };
+    eg.appendChild(b);
+  });
+
+  // render colors
+  const cg = document.getElementById('color-grid');
+  cg.innerHTML = '';
+  COLORS.forEach(c => {
+    const d = document.createElement('div');
+    d.className = 'color-dot' + (c === selectedColor ? ' selected' : '');
+    d.style.background = c;
+    d.onclick = () => { selectedColor = c; cg.querySelectorAll('.color-dot').forEach(x => x.classList.remove('selected')); d.classList.add('selected'); };
+    cg.appendChild(d);
+  });
+
+  document.getElementById('cat-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('cat-name-input').focus(), 80);
+}
+
+function saveCategory() {
+  const name = document.getElementById('cat-name-input').value.trim();
+  if (!name) { document.getElementById('cat-name-input').focus(); return; }
+  const id = 'cat_' + Date.now();
+  data.cats[id] = { id, name, emoji: selectedEmoji, color: selectedColor, parentId: parentIdForNewCat };
+  save();
+  closeModal('cat-overlay');
+  if (parentIdForNewCat === null) renderRootGrid();
+  else renderDetail(parentIdForNewCat);
+}
+
+function deleteCategory(e, catId) {
+  e.stopPropagation();
+  if (!confirm('Bu kategoriyi silmek istediğine emin misin? İçindeki alt kategoriler ve notlar da silinecek.')) return;
+  deleteCatRecursive(catId);
+  save();
+  if (currentCatId === catId) navigateTo(null);
+  else if (currentCatId === null) renderRootGrid();
+  else renderDetail(currentCatId);
+}
+
+function deleteCatRecursive(catId) {
+  Object.values(data.cats).filter(c => c.parentId === catId).forEach(c => deleteCatRecursive(c.id));
+  Object.values(data.notes).filter(n => n.catId === catId).forEach(n => delete data.notes[n.id]);
+  delete data.cats[catId];
+}
+
+// ─── NOTE MODAL ────────────────────────────────────────
+let noteType = 'text';
+let imageDataUrl = null;
+
+function openNoteModal() {
+  noteType = 'text';
+  imageDataUrl = null;
+  document.getElementById('note-text-input').value = '';
+  document.getElementById('note-link-input').value = '';
+  document.getElementById('note-link-desc').value = '';
+  document.getElementById('img-preview').style.display = 'none';
+  document.getElementById('img-preview').src = '';
+  switchNoteType('text');
+  document.getElementById('note-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('note-text-input').focus(), 80);
+}
+
+function switchNoteType(type) {
+  noteType = type;
+  document.querySelectorAll('.type-tab').forEach(t => t.classList.toggle('active', t.dataset.type === type));
+  document.getElementById('note-text-area').style.display  = type === 'text'  ? '' : 'none';
+  document.getElementById('note-link-area').style.display  = type === 'link'  ? '' : 'none';
+  document.getElementById('note-image-area').style.display = type === 'image' ? '' : 'none';
+}
+
+function previewImage(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    imageDataUrl = ev.target.result;
+    const prev = document.getElementById('img-preview');
+    prev.src = imageDataUrl;
+    prev.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveNote() {
+  let content = '', desc = '';
+  if (noteType === 'text') {
+    content = document.getElementById('note-text-input').value.trim();
+    if (!content) return;
+  } else if (noteType === 'link') {
+    content = document.getElementById('note-link-input').value.trim();
+    desc    = document.getElementById('note-link-desc').value.trim();
+    if (!content) return;
+    if (!/^https?:\/\//i.test(content)) content = 'https://' + content;
+  } else if (noteType === 'image') {
+    if (!imageDataUrl) return;
+    content = imageDataUrl;
+  }
+  const id = 'note_' + Date.now();
+  data.notes[id] = { id, catId: currentCatId, type: noteType, content, desc };
+  save();
+  closeModal('note-overlay');
+  renderDetail(currentCatId);
+}
+
+function deleteNote(e, noteId) {
+  e.stopPropagation();
+  delete data.notes[noteId];
+  save();
+  renderDetail(currentCatId);
+}
+
+// ─── UTILS ─────────────────────────────────────────────
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); }));
+document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.overlay.open').forEach(o => o.classList.remove('open')); });
+
+// ─── INIT ──────────────────────────────────────────────
+renderRootGrid();
 </script>
 </body>
 </html>
