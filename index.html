@@ -202,8 +202,8 @@
       <span class="big-emoji" id="detail-emoji"></span>
       <h2 id="detail-title"></h2>
       <div class="detail-actions">
-        <button class="btn btn-ghost btn-sm" onclick="editCategory({stopPropagation:()=>{}},currentCatId)">✏️ Düzenle</button>
-        <button class="btn btn-ghost btn-sm" onclick="openCatModal(currentCatId)">+ Alt Kategori</button>
+        <button class="btn btn-ghost btn-sm" id="btn-edit-cat">✏️ Düzenle</button>
+        <button class="btn btn-ghost btn-sm" id="btn-add-subcat">+ Alt Kategori</button>
         <button class="btn btn-dark btn-sm" onclick="openNoteModal()">+ Not</button>
       </div>
     </div>
@@ -308,7 +308,6 @@ let db = null;
 
 async function initFirebase() {
   if (!isConfigured) {
-    // Fallback to localStorage if not configured
     const saved = localStorage.getItem('notdefteri');
     if (saved) data = JSON.parse(saved);
     document.getElementById('config-banner').style.display = 'block';
@@ -387,6 +386,15 @@ async function fbBatchDel(pairs) {
 
 // ─── ROUTING ──────────────────────────────────────────
 let currentCatId = null;
+
+// ÖNEMLİ: Detail view butonlarını JS ile bağlıyoruz
+// çünkü currentCatId modül scope'unda ve onclick attribute'larından erişilemiyor
+document.getElementById('btn-edit-cat').addEventListener('click', () => {
+  if (currentCatId !== null) editCategory({ stopPropagation: () => {} }, currentCatId);
+});
+document.getElementById('btn-add-subcat').addEventListener('click', () => {
+  if (currentCatId !== null) openCatModal(currentCatId);
+});
 
 window.navigateTo = catId => {
   currentCatId = catId;
@@ -507,14 +515,13 @@ function makeNoteCard(note,accentColor){
 }
 
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function escA(s){return esc(s);}
 
 // ─── CAT MODAL ────────────────────────────────────────
 const EMOJIS=['','📁','📂','⭐','🔥','💡','📝','🎨','🤖','🎯','📚','🌿','🎵','💻','🔬','🏋️','✈️','🍕','💬','🔑','📊','🎮','💰','📷','🌟','🗂'];
 const COLORS=['#e74c3c','#e67e22','#f1c40f','#2ecc71','#1abc9c','#3498db','#9b59b6','#34495e','#e91e63','#795548'];
 let selEmoji=EMOJIS[1], selColor=COLORS[5], parentIdForNew=null, editingCatId=null;
 
-window.openCatModal = (parentId, editId)=>{
+function openCatModal(parentId, editId){
   editingCatId=editId||null;
   parentIdForNew=parentId;
   if(editingCatId){
@@ -547,13 +554,16 @@ window.openCatModal = (parentId, editId)=>{
   });
   document.getElementById('cat-overlay').classList.add('open');
   setTimeout(()=>document.getElementById('cat-name-input').focus(),80);
-};
+}
+// window'a expose et — header butonu ve diğer inline onclick'ler için
+window.openCatModal = openCatModal;
 
-window.editCategory = (e,catId)=>{
+function editCategory(e, catId){
   e.stopPropagation();
   const cat=data.cats[catId];
-  openCatModal(cat.parentId||null,catId);
-};
+  openCatModal(cat.parentId||null, catId);
+}
+window.editCategory = editCategory;
 
 window.saveCategory = async ()=>{
   const name=document.getElementById('cat-name-input').value.trim();
@@ -697,13 +707,13 @@ window.openEditNoteModal = noteId=>{
   if(!note) return;
   const body=document.getElementById('edit-note-body');
   if(note.type==='text')
-    body.innerHTML=`<div class="field"><label>Metin</label><textarea id="edit-content" ${taStyle}>${escA(note.content)}</textarea></div>`;
+    body.innerHTML=`<div class="field"><label>Metin</label><textarea id="edit-content" ${taStyle}>${esc(note.content)}</textarea></div>`;
   else if(note.type==='link')
-    body.innerHTML=`<div class="field"><label>Bağlantı URL</label><input type="text" id="edit-content" value="${escA(note.content)}" ${fldStyle}></div><div class="field"><label>Açıklama</label><input type="text" id="edit-desc" value="${escA(note.desc||'')}" placeholder="Açıklama…" ${fldStyle}></div>`;
+    body.innerHTML=`<div class="field"><label>Bağlantı URL</label><input type="text" id="edit-content" value="${esc(note.content)}" ${fldStyle}></div><div class="field"><label>Açıklama</label><input type="text" id="edit-desc" value="${esc(note.desc||'')}" placeholder="Açıklama…" ${fldStyle}></div>`;
   else if(note.type==='image')
-    body.innerHTML=`<div class="field"><img class="edit-preview-img" src="${note.content}" alt=""><label>Açıklama</label><textarea id="edit-caption" placeholder="Fotoğraf açıklaması…" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:14px;background:var(--bg);color:var(--text);outline:none;resize:vertical;min-height:72px;">${escA(note.caption||'')}</textarea></div>`;
+    body.innerHTML=`<div class="field"><img class="edit-preview-img" src="${note.content}" alt=""><label>Açıklama</label><textarea id="edit-caption" placeholder="Fotoğraf açıklaması…" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:14px;background:var(--bg);color:var(--text);outline:none;resize:vertical;min-height:72px;">${esc(note.caption||'')}</textarea></div>`;
   else if(note.type==='file')
-    body.innerHTML=`<div class="field"><div class="edit-file-info"><span style="font-size:20px">📄</span><span style="font-size:13px;font-weight:500">${esc(note.desc||'Dosya')}</span></div><label>Açıklama</label><textarea id="edit-caption" placeholder="Dosya açıklaması…" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:14px;background:var(--bg);color:var(--text);outline:none;resize:vertical;min-height:72px;">${escA(note.caption||'')}</textarea></div>`;
+    body.innerHTML=`<div class="field"><div class="edit-file-info"><span style="font-size:20px">📄</span><span style="font-size:13px;font-weight:500">${esc(note.desc||'Dosya')}</span></div><label>Açıklama</label><textarea id="edit-caption" placeholder="Dosya açıklaması…" style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:14px;background:var(--bg);color:var(--text);outline:none;resize:vertical;min-height:72px;">${esc(note.caption||'')}</textarea></div>`;
   document.getElementById('edit-note-overlay').classList.add('open');
   setTimeout(()=>{const f=body.querySelector('textarea,input');if(f)f.focus();},80);
 };
