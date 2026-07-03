@@ -49,6 +49,10 @@ const depoViewOverlay = document.getElementById('depoViewOverlay');
 const depoList = document.getElementById('depoList');
 const depoViewCloseBtn = document.getElementById('depoViewCloseBtn');
 const depoSearchInput = document.getElementById('depoSearchInput');
+const depoSearchInput = document.getElementById('depoSearchInput');
+const photoAdminRow = document.getElementById('photoAdminRow');
+const photoMatchArea = document.getElementById('photoMatchArea');
+const PHOTO_KEY = 'photo_kelimeler';
 const codeInput = document.getElementById('codeInput');
 const suppliersMenuItem = document.getElementById('suppliersMenuItem');
 const suppliersModalOverlay = document.getElementById('suppliersModalOverlay');
@@ -151,7 +155,7 @@ const SECTION_LABELS = {
   '8': 'Kategori'
 };
 
-const ACTIVE_SECTIONS = ['0', '1', '3', '4'];
+const ACTIVE_SECTIONS = ['0', '1', '3', '4', '5'];
 
 // Umre / Dahil-Hariç buton tanımları
 const UMRE_GIDIS_KEYS = [
@@ -214,6 +218,7 @@ onAuthStateChanged(auth, (user) => {
     startListeningDepo();
     renderUmreButtons();
     renderDahilExtraButtons();
+    renderPhotoPanel();
     renderSuppliersList();
     suppliersModalOverlay.classList.add('open');
   } else {
@@ -245,6 +250,7 @@ adminToggleItem.addEventListener('click', () => {
   adminTogglePill.classList.toggle('on', adminMode);
   renderUmreButtons();
   renderDahilExtraButtons();
+  renderPhotoPanel();
 });
 notesMenuItem.addEventListener('click', () => {
   menuDropdown.classList.remove('open');
@@ -976,6 +982,41 @@ function renderDahilExtraButtons() {
   dahilExtraRow.innerHTML = '';
   DAHIL_EXTRA_KEYS.forEach(k => dahilExtraRow.appendChild(buildAdminButton(k)));
 }
+function renderPhotoPanel() {
+  photoAdminRow.innerHTML = '';
+  if (adminMode) {
+    const data = adminTexts[PHOTO_KEY] || { html: '', plain: '' };
+    const btn = document.createElement('button');
+    btn.className = 'action-btn';
+    btn.textContent = 'Ekle / Düzenle';
+    btn.addEventListener('click', () => openAdminModal(PHOTO_KEY, 'Fotoğraf Kelimeleri', data));
+    photoAdminRow.appendChild(btn);
+  }
+  renderPhotoMatch();
+}
+
+function renderPhotoMatch() {
+  photoMatchArea.innerHTML = '';
+  const raw = (adminTexts[PHOTO_KEY] && adminTexts[PHOTO_KEY].plain) || '';
+  const keywords = raw.split('-').map(w => w.trim()).filter(Boolean);
+  if (!keywords.length) {
+    photoMatchArea.innerHTML = '<div class="empty">Kelime listesi tanımlı değil.</div>';
+    return;
+  }
+  const sourceText = currentSupplier === 'otto' ? ottoProgramInput.value : programInput.value;
+  const places = extractVisitedPlaces(sourceText).map(p => p.toLocaleLowerCase('tr-TR'));
+  const matched = keywords.filter(k => places.includes(k.toLocaleLowerCase('tr-TR')));
+  if (!matched.length) {
+    photoMatchArea.innerHTML = '<div class="empty">Eşleşen fotoğraf bulunamadı.</div>';
+    return;
+  }
+  matched.forEach(word => {
+    const btn = document.createElement('button');
+    btn.className = 'action-btn';
+    btn.textContent = word;
+    photoMatchArea.appendChild(btn);
+  });
+}
 
 function buildAdminButton(k) {
   const wrap = document.createElement('span');
@@ -1098,6 +1139,7 @@ function updateAll() {
   renderNoteMatch();
   renderVisitedMatch();
   renderProgramDays();
+  renderPhotoMatch();
   computeStatuses();
 }
 
@@ -1328,6 +1370,7 @@ function startListeningAdminTexts() {
     });
     renderUmreButtons();
     renderDahilExtraButtons();
+    renderPhotoPanel();
   }, (err) => {
     console.error('adminTexts yüklenemedi:', err.message);
   });
