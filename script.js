@@ -83,6 +83,7 @@ const btnZiyaret = document.getElementById('btnZiyaret');
 const btnKalkis = document.getElementById('btnKalkis');
 const starButtons = document.querySelectorAll('.star-btn');
 const noteMatchArea = document.getElementById('noteMatchArea');
+const visitedMatchArea = document.getElementById('visitedMatchArea'); 
 const umreGidisRow = document.getElementById('umreGidisRow');
 const umreDonusRow = document.getElementById('umreDonusRow');
 
@@ -365,10 +366,10 @@ function extractAvantajBlocks(text) {
     const stopMatch = block.match(/Fiyata\s*Dahil\s*Olan\s*Hizmetler/i);
     if (stopMatch) block = block.slice(0, stopMatch.index);
 
-    const tumMatch = block.match(/T[ÜU]M[^\n]*DAH[İI]L[^\n]*/i);
+    const tumMatch = block.match(/T[ÜU]M[^\n]*D[AÂ]H[İI]L[^\n]*/i);
     const tumLine = tumMatch ? tumMatch[0].trim() : '';
 
-    const packageMatch = block.match(/^.*Turu.*\+.*Turu.*$/im);
+    const packageMatch = block.match(/^.*\+.*$/im);
     const packageLine = packageMatch ? packageMatch[0].trim() : '';
 
     const yetiskinIdx = block.search(/YET[İI]ŞK[İI]N/i);
@@ -425,7 +426,7 @@ function parseOttoSource(text) {
   }
 
   // Fiyata Dahil Olmayan Hizmetler
-  const dahilYokMatch = text.match(/Fiyata\s*Dahil\s*Olmayan\s*Hizmetler([\s\S]*?)(Ekstra\s*Turlar|Alternatifler|$)/i);
+  const dahilYokMatch = text.match(/Fiyata\s*Dahil\s*Olmayan\s*Hizmetler([\s\S]*?)(Alternatifler|$)/i);
   if (dahilYokMatch) {
     let dahilYokText = dahilYokMatch[1].trim();
     dahilYokText = dahilYokText.replace(/^F[İI]YATA[^\n]*\n+/i, '').trim();
@@ -825,6 +826,29 @@ function renderNoteMatch() {
   });
 }
 
+function renderVisitedMatch() {
+  const sourceText = currentSupplier === 'otto' ? ottoProgramInput.value : programInput.value;
+  const places = extractVisitedPlaces(sourceText);
+  visitedMatchArea.innerHTML = '';
+  if (!places.length) return;
+  const placeKeys = places.map(p => p.toLocaleLowerCase('tr-TR'));
+  const matches = notes.filter(n => placeKeys.includes((n.title || '').toLocaleLowerCase('tr-TR')));
+  const seen = new Set();
+  matches.forEach(note => {
+    if (seen.has(note.id)) return;
+    seen.add(note.id);
+    const div = document.createElement('div');
+    div.className = 'search-note';
+    div.innerHTML = `<h4>📌 ${escHtml(note.title)}</h4><p>${escHtml(note.content || '')}</p>`;
+    const copyB = document.createElement('button');
+    copyB.className = 'action-btn';
+    copyB.textContent = 'Açıklamayı Kopyala';
+    copyB.addEventListener('click', () => copyPlain(note.content || '', copyB));
+    div.appendChild(copyB);
+    visitedMatchArea.appendChild(div);
+  });
+}
+
 function renderProgramDays() {
   if (currentSupplier === 'otto') {
     renderOttoProgramButton();
@@ -1072,6 +1096,7 @@ function computeStatuses() {
 
 function updateAll() {
   renderNoteMatch();
+  renderVisitedMatch();
   renderProgramDays();
   computeStatuses();
 }
