@@ -1,0 +1,326 @@
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hızlı Araçlar</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <h2>🌍 Hızlı Araçlar</h2>
+    <label for="emailInput">E-posta</label>
+    <input type="email" id="emailInput" placeholder="ornek@mail.com" autocomplete="email">
+    <label for="passwordInput">Şifre</label>
+    <input type="password" id="passwordInput" placeholder="••••••••" autocomplete="current-password">
+    <button class="login-btn" id="loginBtn">Giriş Yap</button>
+    <div id="loginError"></div>
+  </div>
+</div>
+
+<!-- ANA UYGULAMA -->
+<div id="appScreen">
+  <nav>
+    <div class="brand">🌍 Hızlı Araçlar</div>
+    <div class="nav-right">
+      <span class="nav-user" id="navUser"></span>
+      <button id="menuBtn">☰</button>
+      <div class="menu-dropdown" id="menuDropdown">
+        <div class="menu-item" id="adminToggleItem">
+          <span>Yönetici Modu</span>
+          <span class="toggle-pill" id="adminTogglePill"></span>
+        </div>
+       <div class="menu-item" id="suppliersMenuItem">
+          <span>🏢 Tedarikçiler</span>
+          <span>›</span>
+        </div>
+       <div class="menu-item" id="notesMenuItem">
+          <span>📒 Vize Bilgisi</span>
+          <span>›</span>
+        </div>
+        <div class="menu-item" id="sectionsMenuItem">
+          <span>📑 Bölümler</span>
+          <span>›</span>
+        </div>
+        <div class="menu-item" id="depoMenuItem">
+          <span>📦 Depo Alanı</span>
+          <span>›</span>
+        </div>
+      </div>
+      <button id="logoutBtn">Çıkış</button>
+    </div>
+  </nav>
+
+  <div class="layout">
+    <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+      <div class="sec-item active" data-sec="0">🏠 Form</div>
+      <div class="sec-item" data-sec="1"><span class="dot red" id="dot-1"></span>Tur Detayı</div>
+      <div class="sec-item disabled" data-sec="2"><span class="dot gray"></span>Tarihler</div>
+      <div class="sec-item" data-sec="3"><span class="dot red" id="dot-3"></span>Dahil - Hariç</div>
+      <div class="sec-item" data-sec="4"><span class="dot red" id="dot-4"></span>Program</div>
+      <div class="sec-item disabled" data-sec="5"><span class="dot gray"></span>Fotoğraf</div>
+      <div class="sec-item disabled" data-sec="6"><span class="dot gray"></span>Yorumlar</div>
+      <div class="sec-item disabled" data-sec="7"><span class="dot gray"></span>SEO</div>
+      <div class="sec-item disabled" data-sec="8"><span class="dot gray"></span>Kategori</div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main-col">
+      <div class="top-actions">
+        <button class="reset-btn" id="resetBtn">↺ Sıfırla</button>
+      </div>
+     
+<!-- FORM -->
+      <div class="panel active" id="panel-0">
+      <div class="card">
+        <div class="form-field">
+          <label for="codeInput">Kod</label>
+          <input type="text" id="codeInput" placeholder="Kodu buraya yaz...">
+        </div>
+        <div class="form-field">
+          <label>Aktif Tedarikçi</label>
+          <div id="activeSupplierLabel" style="font-weight:700;color:#2563eb;">İstya</div>
+        </div>
+
+        <div id="istyaFields">
+        <div class="form-field">
+          <label for="titleInput">Tur Başlığı Metni</label>
+          <textarea id="titleInput" placeholder="Buraya başlık / uçuş bilgisi metnini yaz..."></textarea>
+        </div>
+        <div class="form-field">
+          <label for="programInput">Program</label>
+          <textarea id="programInput" placeholder="Turun tüm gün gün programını buraya yapıştır..." style="min-height:140px;"></textarea>
+        </div>
+        <div class="form-field">
+          <label for="lastDayExtraInput">Son Gün Ek Metni (opsiyonel)</label>
+          <textarea id="lastDayExtraInput" placeholder="Son günün içeriğinin altına eklenecek metin..."></textarea>
+        </div>
+        </div>
+
+        <div id="ottoFields" style="display:none;">
+        <div class="form-field">
+          <label for="ottoSourceInput">Tedarikçi Sayfası Metni (opsiyonel)</label>
+          <textarea id="ottoSourceInput" placeholder="Tedarikçi sayfasında Ctrl+A yapıp buraya yapıştırın..." style="min-height:100px;"></textarea>
+          <div class="btn-row" style="margin-top:8px;">
+            <button type="button" class="action-btn" id="ottoParseBtn">Otomatik Doldur</button>
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="ottoTitleInput">Tur Başlığı Metni</label>
+          <textarea id="ottoTitleInput" placeholder="Buraya başlık metnini yaz..."></textarea>
+        </div>
+        <div class="form-field">
+          <label for="ottoProgramInput">Program</label>
+          <textarea id="ottoProgramInput" placeholder="Turun tüm gün gün programını buraya yapıştır..." style="min-height:140px;"></textarea>
+        </div>
+        <div class="form-field">
+          <label>Son Gün Ek Metni Sayısı</label>
+          <div class="btn-row" style="align-items:center;">
+            <button type="button" class="action-btn" id="ottoExtraMinusBtn" style="padding:6px 12px;">−</button>
+            <span id="ottoExtraCount" style="font-weight:700;min-width:20px;text-align:center;display:inline-block;">1</span>
+            <button type="button" class="action-btn" id="ottoExtraPlusBtn" style="padding:6px 12px;">+</button>
+          </div>
+        </div>
+        <div id="ottoExtraContainer"></div>
+        </div>
+
+        <div class="form-field">
+          <label>Yıldız Seç</label>
+          <div class="btn-row" id="starRow">
+            <button type="button" class="action-btn star-btn" data-star="1">1 Yıldız</button>
+            <button type="button" class="action-btn star-btn" data-star="2">2 Yıldız</button>
+            <button type="button" class="action-btn star-btn" data-star="3">3 Yıldız</button>
+            <button type="button" class="action-btn star-btn" data-star="4">4 Yıldız</button>
+            <button type="button" class="action-btn star-btn" data-star="5">5 Yıldız</button>
+          </div>
+        </div>
+
+       <div class="form-field">
+          <label for="dahilVarInput">Fiyata Dahil</label>
+          <textarea id="dahilVarInput" placeholder="Fiyata dahil olan maddeleri her satıra bir madde olacak şekilde yapıştır..." style="min-height:100px;"></textarea>
+        </div>
+     <div class="form-field" style="margin-bottom:0;">
+          <label for="dahilYokInput">Fiyata Dahil Değil</label>
+          <textarea id="dahilYokInput" placeholder="Fiyata dahil olmayan maddeleri her satıra bir madde olacak şekilde yapıştır..." style="min-height:100px;"></textarea>
+        </div>
+      </div>
+      </div>
+
+      <!-- PANEL 1: TUR DETAYI -->
+      <div class="panel" id="panel-1">
+        <div class="card">
+          <h3>1. Tur Detayı</h3>
+         <div class="btn-row">
+            <button class="action-btn" id="btnTurBasligi">Tur Başlığı</button>
+            <button class="action-btn" id="btnGeceleme">Geceleme</button>
+            <button class="action-btn" id="btnKonaklama">Konaklama</button>
+            <button class="action-btn" id="btnUlasim">Ulaşım</button>
+            <button class="action-btn" id="btnZiyaret">Ziyaret Edilecek Yerler</button>
+            <button class="action-btn" id="btnKalkis">Kalkış Yeri</button>
+          </div>
+          <div id="noteMatchArea"></div>
+
+          <div class="subhead">Umre Gidiş</div>
+          <div class="btn-row" id="umreGidisRow"></div>
+          <div class="subhead">Umre Dönüş</div>
+          <div class="btn-row" id="umreDonusRow"></div>
+        </div>
+      </div>
+
+      <!-- PANEL 3: DAHIL HARIC -->
+      <div class="panel" id="panel-3">
+        <div class="card">
+          <h3>3. Dahil - Hariç</h3>
+          <div class="btn-row">
+            <button class="action-btn" id="btnDahil">Dahil</button>
+            <button class="action-btn" id="btnDahilDegil">Dahil Değil</button>
+          </div>
+          <div class="subhead">Ek Bilgiler</div>
+          <div class="btn-row" id="dahilExtraRow"></div>
+        </div>
+      </div>
+
+      <!-- PANEL 4: PROGRAM -->
+      <div class="panel" id="panel-4">
+        <div class="card">
+          <h3>4. Program</h3>
+          <div id="programDays"><div class="empty">Henüz program metni girilmedi.</div></div>
+        </div>
+      </div>
+
+      <!-- Devre dışı paneller -->
+      <div class="panel" id="panel-2"><div class="card panel-disabled">Bu bölüm şimdilik aktif değil.</div></div>
+      <div class="panel" id="panel-5"><div class="card panel-disabled">Bu bölüm şimdilik aktif değil.</div></div>
+      <div class="panel" id="panel-6"><div class="card panel-disabled">Bu bölüm şimdilik aktif değil.</div></div>
+      <div class="panel" id="panel-7"><div class="card panel-disabled">Bu bölüm şimdilik aktif değil.</div></div>
+      <div class="panel" id="panel-8"><div class="card panel-disabled">Bu bölüm şimdilik aktif değil.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Vize Bilgisi Modal -->
+<div class="modal-overlay" id="notesModalOverlay">
+  <div class="modal" style="max-width:600px;max-height:85vh;overflow-y:auto;">
+    <div class="drawer-header" style="padding:0 0 12px;border-bottom:1px solid #e5e7eb;margin-bottom:12px;">
+      <h3 style="margin:0;">📒 Vize Bilgisi</h3>
+      <button class="drawer-close" id="notesCloseBtn">✕</button>
+    </div>
+    <div class="field notes-toolbar">
+      <input type="text" id="noteSearchInput" placeholder="Başlığa göre ara...">
+      <button class="save-btn" id="addNoteBtn">+ Not Ekle</button>
+    </div>
+    <div id="notesList"><div class="loading-notes">Yükleniyor…</div></div>
+  </div>
+</div>
+
+<!-- Not Ekle/Düzenle Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3 id="modalTitle">Yeni Not</h3>
+    <div class="field">
+      <label for="noteTitleInput">Başlık *</label>
+      <input type="text" id="noteTitleInput" placeholder="Not başlığı">
+    </div>
+    <div class="field">
+      <label>Vize Tipi *</label>
+      <div class="btn-row">
+        <button type="button" class="action-btn visa-type-btn" data-content="Vizesiz">Vizesiz</button>
+        <button type="button" class="action-btn visa-type-btn" data-content="Kapı Vizesi">Kapı Vizesi</button>
+        <button type="button" class="action-btn visa-type-btn" data-content="Schengen Vizesi">Schengen Vizesi</button>
+      </div>
+      <input type="hidden" id="noteContentInput">
+    </div>
+    <div class="modal-actions">
+      <button class="cancel-btn" id="cancelModalBtn">İptal</button>
+      <button class="save-btn" id="saveNoteBtn">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin metin düzenleme modal -->
+<div class="modal-overlay" id="adminModalOverlay">
+  <div class="modal" style="max-width:700px;max-height:85vh;overflow-y:auto;">
+    <h3 id="adminModalTitle">Metni Düzenle</h3>
+    <div class="field">
+      <label for="adminTextInput">Kopyalanacak Metin</label>
+      <div id="adminTextInput" class="rich-editable" contenteditable="true" data-placeholder="Butona basılınca kopyalanacak metni yazın..."></div>
+    </div>
+    <div class="modal-actions">
+      <button class="cancel-btn" id="adminCancelBtn">İptal</button>
+      <button class="save-btn" id="adminSaveBtn">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Silme Onay Modal -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <p>Bu notu silmek istediğine emin misin?</p>
+    <div class="confirm-actions">
+      <button class="confirm-no" id="confirmNo">Vazgeç</button>
+      <button class="confirm-yes" id="confirmYes">Evet, Sil</button>
+    </div>
+  </div>
+</div>
+
+<!-- Tedarikçiler Modal -->
+<div class="modal-overlay" id="suppliersModalOverlay">
+  <div class="modal">
+    <h3>Tedarikçiler</h3>
+    <div id="suppliersList"></div>
+    <div class="modal-actions">
+      <button class="cancel-btn" id="suppliersCloseBtn">Kapat</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bölümler Modal -->
+<div class="modal-overlay" id="sectionsModalOverlay">
+  <div class="modal">
+    <h3>Bölümler</h3>
+    <div id="sectionsList"></div>
+    <div class="modal-actions">
+      <button class="cancel-btn" id="sectionsCloseBtn">Kapat</button>
+    </div>
+  </div>
+</div>
+
+<!-- Depo Şifre Modal -->
+<div class="modal-overlay" id="depoPassOverlay">
+  <div class="modal">
+    <h3>Depo Alanı</h3>
+    <div class="field">
+      <label for="depoPassInput">Şifre</label>
+      <input type="text" id="depoPassInput" placeholder="Şifre">
+    </div>
+    <div id="depoPassError" style="color:#dc2626;font-size:13px;min-height:16px;"></div>
+    <div class="modal-actions">
+      <button class="cancel-btn" id="depoPassCancelBtn">İptal</button>
+      <button class="save-btn" id="depoPassOkBtn">Giriş</button>
+    </div>
+  </div>
+</div>
+
+<!-- Depo Görüntüleme Modal -->
+<div class="modal-overlay" id="depoViewOverlay">
+  <div class="modal" style="max-width:600px;max-height:80vh;overflow-y:auto;">
+    <h3>📦 Depo Alanı</h3>
+    <div class="field">
+      <input type="text" id="depoSearchInput" placeholder="Koda göre ara...">
+    </div>
+    <div id="depoList"></div>
+    <div class="modal-actions">
+      <button class="cancel-btn" id="depoViewCloseBtn">Kapat</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="script.js"></script>
+</body>
+</html>
